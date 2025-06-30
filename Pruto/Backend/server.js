@@ -15,14 +15,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-const productRoutes = require("./routes/productRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-app.use("/api/products", productRoutes);
-app.use("/api/payments", paymentRoutes);
+const authRoutes = require("./routes/authRoutes");
+// const productRoutes = require("./routes/productRoutes");
+// const paymentRoutes = require("./routes/paymentRoutes");
+// app.use("/api/products", productRoutes);
+// app.use("/api/payments", paymentRoutes);
+app.use("/api/auth", authRoutes);
+
+app.get("/", (req, res) => res.send("Pruto Backend Server is running"));
 
 // MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI)
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })

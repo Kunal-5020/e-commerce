@@ -1,14 +1,18 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
-import {getAuth} from "firebase/auth";
-import {getStorage} from "firebase/storage";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+const { initializeApp }  = require ("firebase/app");
+const { getAnalytics } = require ("firebase/analytics");
+const { getFirestore } = require ("firebase/firestore");
+const{
+  getAuth,
+  GoogleAuthProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber
+} = require ("firebase/auth");
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const {getStorage} = require ("firebase/storage");
+
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyA2BPO0H1cyOOjEQ0oNR1kHR_rbxfw6VOI",
   authDomain: "e-commerce-3070e.firebaseapp.com",
@@ -22,8 +26,22 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
 
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage();
+const googleProvider = new GoogleAuthProvider();
+
+
+ const db = getFirestore(app);
+ const auth = getAuth(app);
+ const storage = getStorage();
+
+module.exports = {
+  auth,
+  googleProvider,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  db,
+  storage,
+  // analytics,
+  app
+};

@@ -1,148 +1,278 @@
-import React from 'react';
+// pages/login.tsx
 
-// Main App component for the Pruto E-commerce application
-const App = () => {
+"use client"; // This directive is important for client-side components in Next.js App Router
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'; // Correct import for Next.js App Router
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { toast } from 'react-hot-toast';
+import { Mail, Smartphone } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc'; // Import Google icon from react-icons/fc
+import { motion } from 'framer-motion';
+
+// Import Firebase functions from the correct relative paths (now .ts)
+import { loginWithEmail, loginWithGoogle, onAuthStateChanged } from '../../components/firebase/firebaseAuth';
+import { setupRecaptcha, sendOtp, verifyOtp, resetRecaptcha } from '../../components/firebase/firebasePhoneAuth';
+
+// Import shadcn/ui components from the correct relative paths
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { ConfirmationResult } from 'firebase/auth'; // Import ConfirmationResult type
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }).optional().or(z.literal('')),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }).optional().or(z.literal('')),
+  phoneNumber: z.string().regex(/^\+\d{10,15}$/, { message: "Invalid phone number format. Use +CCXXXXXXXXXX" }).optional().or(z.literal('')),
+  otp: z.string().min(6, { message: "OTP must be 6 digits." }).max(6, { message: "OTP must be 6 digits." }).optional().or(z.literal('')),
+}).refine(data => {
+  // Ensure at least one of email/password or phoneNumber is provided for initial login
+  if (data.email && data.password) return true;
+  if (data.phoneNumber && !data.otp) return true; // Initial phone login
+  if (data.phoneNumber && data.otp) return true; // OTP verification
+  return false;
+}, {
+  message: "Provide email/password or phone number for login.",
+  path: ["email"] // Attach error to a relevant field
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
+export default function LoginPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email'); // 'email', 'phone'
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [recaptchaContainerId] = useState<string>('recaptcha-container-login'); // Unique ID for recaptcha
+
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      phoneNumber: '',
+      otp: '',
+    },
+  });
+
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = form;
+
+  // Listen for auth state changes to redirect authenticated users
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged((user: any) => {
+      if (user) {
+        router.push('/'); // Redirect to dashboard if logged in
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  // Initialize reCAPTCHA when component mounts and tab is phone
+  useEffect(() => {
+    if (activeTab === 'phone' && !confirmationResult) {
+      // Ensure the reCAPTCHA container is rendered before setting up
+      const container = document.getElementById(recaptchaContainerId);
+      if (container) {
+        setupRecaptcha(recaptchaContainerId);
+      }
+    }
+    return () => {
+      // Clean up reCAPTCHA if component unmounts or tab changes
+      resetRecaptcha();
+    };
+  }, [activeTab, confirmationResult, recaptchaContainerId]);
+
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      if (activeTab === 'email') {
+        if (!data.email || !data.password) {
+          toast.error('Please provide email and password.');
+          return;
+        }
+        await loginWithEmail(data.email, data.password);
+        toast.success('Logged in successfully!');
+        router.push('/');
+      } else if (activeTab === 'phone') {
+        if (!data.phoneNumber) {
+          toast.error('Please provide a phone number.');
+          return;
+        }
+        if (!confirmationResult) {
+          // Step 1: Send OTP
+          const verifier = setupRecaptcha(recaptchaContainerId);
+          const result = await sendOtp(data.phoneNumber, verifier);
+          setConfirmationResult(result);
+          toast.success('OTP sent to your phone!');
+          setValue('otp', ''); // Clear OTP field for new input
+        } else {
+          // Step 2: Verify OTP
+          if (!data.otp) {
+            toast.error('Please enter the OTP.');
+            return;
+          }
+          const user = await verifyOtp(confirmationResult, data.otp);
+          toast.success('Phone number verified and logged in successfully!');
+          setConfirmationResult(null); // Reset confirmation result
+          resetRecaptcha(); // Reset reCAPTCHA
+          router.push('/');
+        }
+      }
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      toast.error(error.message);
+      // If OTP verification fails, allow re-entering OTP or resending
+      if (activeTab === 'phone' && confirmationResult) {
+        setValue('otp', ''); // Clear OTP field
+      }
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      toast.success('Google login successful!');
+      router.push('/');
+    } catch (error: any) {
+      console.error('Google Login Error:', error);
+      toast.error(error.message);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 font-inter antialiased">
-      {/* Navbar */}
-      <nav className="bg-indigo-700 p-4 shadow-md rounded-b-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          {/* Logo and App Name */}
-          <div className="flex items-center">
-            {/* Using a placeholder image for the logo, ideally replace with your Pruto logo */}
-            <img
-              src="https://placehold.co/40x40/4f46e5/ffffff?text=P"
-              alt="Pruto Logo"
-              className="w-10 h-10 mr-3 rounded-full"
-            />
-            <h1 className="text-white text-2xl font-bold">Pruto</h1>
-          </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 space-y-6"
+      >
+        <h2 className="text-3xl font-bold text-center text-gray-800">Login</h2>
 
-          {/* Navigation Links */}
-          <div className="hidden md:flex space-x-6">
-            <a href="#" className="text-white hover:text-indigo-200 transition-colors duration-200">Home</a>
-            <a href="#" className="text-white hover:text-indigo-200 transition-colors duration-200">Shop</a>
-            <a href="#" className="text-white hover:text-indigo-200 transition-colors duration-200">Categories</a>
-            <a href="#" className="text-white hover:text-indigo-200 transition-colors duration-200">About</a>
-            <a href="#" className="text-white hover:text-indigo-200 transition-colors duration-200">Contact</a>
-          </div>
+        <div className="flex justify-center space-x-2 mb-6">
+          <Button
+            variant={activeTab === 'email' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('email')}
+            className="flex-1"
+          >
+            <Mail className="w-4 h-4 mr-2" /> Email
+          </Button>
+          <Button
+            variant={activeTab === 'phone' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('phone')}
+            className="flex-1"
+          >
+            <Smartphone className="w-4 h-4 mr-2" /> Phone
+          </Button>
+        </div>
 
-          {/* User Actions (e.g., Cart, Login) */}
-          <div className="flex items-center space-x-4">
-            <button className="text-white hover:text-indigo-200 transition-colors duration-200 p-2 rounded-full hover:bg-indigo-600">
-              {/* Shopping Cart Icon (example using Lucide React, assuming availability) */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-cart">
-                <circle cx="8" cy="21" r="1" />
-                <circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-              </svg>
-            </button>
-            <button className="bg-white text-indigo-700 px-4 py-2 rounded-md font-semibold hover:bg-indigo-100 transition-colors duration-200">
-              Login
-            </button>
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {activeTab === 'email' && (
+            <>
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium leading-none">Email</label>
+                <Input
+                  id="email"
+                  placeholder="your@email.com"
+                  type="email"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <p className="text-[0.8rem] font-medium text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium leading-none">Password</label>
+                <Input
+                  id="password"
+                  placeholder="••••••••"
+                  type="password"
+                  {...register("password")}
+                />
+                {errors.password && (
+                  <p className="text-[0.8rem] font-medium text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging In...' : 'Login with Email'}
+              </Button>
+            </>
+          )}
 
-          {/* Mobile Menu Button (Hamburger) */}
-          <div className="md:hidden">
-            <button className="text-white p-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 rounded-md">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-              </svg>
-            </button>
+          {activeTab === 'phone' && (
+            <>
+              <div className="space-y-2">
+                <label htmlFor="phoneNumber" className="text-sm font-medium leading-none">Phone Number</label>
+                <Input
+                  id="phoneNumber"
+                  placeholder="+1234567890"
+                  type="tel"
+                  {...register("phoneNumber")}
+                />
+                {errors.phoneNumber && (
+                  <p className="text-[0.8rem] font-medium text-red-500">
+                    {errors.phoneNumber.message}
+                  </p>
+                )}
+              </div>
+              {confirmationResult && (
+                <div className="space-y-2">
+                  <label htmlFor="otp" className="text-sm font-medium leading-none">OTP Code</label>
+                  <Input
+                    id="otp"
+                    placeholder="Enter 6-digit OTP"
+                    type="text"
+                    {...register("otp")}
+                  />
+                  {errors.otp && (
+                    <p className="text-[0.8rem] font-medium text-red-500">
+                      {errors.otp.message}
+                    </p>
+                  )}
+                </div>
+              )}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Processing...' : (confirmationResult ? 'Verify OTP' : 'Send OTP')}
+              </Button>
+              {/* reCAPTCHA container must be visible for setupRecaptcha */}
+              <div id={recaptchaContainerId} className="mt-4"></div>
+            </>
+          )}
+        </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-gray-500">Or continue with</span>
           </div>
         </div>
-      </nav>
 
-      {/* Hero Section */}
-      <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 text-center shadow-lg rounded-b-lg mx-4 mt-4">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Discover Your Next Favorite Item!</h2>
-          <p className="text-lg md:text-xl mb-8 opacity-90">Shop the latest trends and exclusive deals at Pruto.</p>
-          <button className="bg-white text-indigo-700 px-8 py-3 rounded-full text-lg font-semibold shadow-xl hover:bg-indigo-50 transition-all duration-300 transform hover:scale-105">
-            Shop Now
-          </button>
+        <Button
+          onClick={handleGoogleLogin}
+          className="w-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
+          disabled={isSubmitting}
+        >
+          <FcGoogle className="w-5 h-5 mr-2" /> Login with Google
+        </Button>
+
+        <div className="text-center text-sm text-gray-600 mt-6">
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-indigo-600 hover:underline">
+            Sign Up
+          </Link>
         </div>
-      </header>
-
-      {/* Product Grid Section */}
-      <section className="container mx-auto px-4 py-12">
-        <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Featured Products</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {/* Example Product Card 1 */}
-          <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col items-center text-center">
-            <img
-              src="https://placehold.co/200x180/eef2ff/4f46e5?text=Product+1"
-              alt="Product Image"
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">Stylish Smartwatch</h4>
-            <p className="text-gray-600 mb-3 line-clamp-2">Track your fitness and stay connected with this elegant smartwatch.</p>
-            <p className="text-xl font-bold text-indigo-600 mb-4">$199.99</p>
-            <button className="bg-indigo-500 text-white px-5 py-2 rounded-full hover:bg-indigo-600 transition-colors duration-200">
-              Add to Cart
-            </button>
-          </div>
-
-          {/* Example Product Card 2 */}
-          <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col items-center text-center">
-            <img
-              src="https://placehold.co/200x180/eef2ff/4f46e5?text=Product+2"
-              alt="Product Image"
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">Wireless Earbuds</h4>
-            <p className="text-gray-600 mb-3 line-clamp-2">Immersive sound and comfortable fit for your daily adventures.</p>
-            <p className="text-xl font-bold text-indigo-600 mb-4">$89.99</p>
-            <button className="bg-indigo-500 text-white px-5 py-2 rounded-full hover:bg-indigo-600 transition-colors duration-200">
-              Add to Cart
-            </button>
-          </div>
-
-          {/* Example Product Card 3 */}
-          <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col items-center text-center">
-            <img
-              src="https://placehold.co/200x180/eef2ff/4f46e5?text=Product+3"
-              alt="Product Image"
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">High-Performance Laptop</h4>
-            <p className="text-gray-600 mb-3 line-clamp-2">Boost your productivity with this powerful and sleek laptop.</p>
-            <p className="text-xl font-bold text-indigo-600 mb-4">$1299.00</p>
-            <button className="bg-indigo-500 text-white px-5 py-2 rounded-full hover:bg-indigo-600 transition-colors duration-200">
-              Add to Cart
-            </button>
-          </div>
-
-          {/* Example Product Card 4 */}
-          <div className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col items-center text-center">
-            <img
-              src="https://placehold.co/200x180/eef2ff/4f46e5?text=Product+4"
-              alt="Product Image"
-              className="w-full h-48 object-cover rounded-lg mb-4"
-            />
-            <h4 className="text-lg font-semibold text-gray-800 mb-2">Designer Backpack</h4>
-            <p className="text-gray-600 mb-3 line-clamp-2">Carry your essentials in style with this durable and trendy backpack.</p>
-            <p className="text-xl font-bold text-indigo-600 mb-4">$75.50</p>
-            <button className="bg-indigo-500 text-white px-5 py-2 rounded-full hover:bg-indigo-600 transition-colors duration-200">
-              Add to Cart
-            </button>
-          </div>
+        <div className="text-center text-sm text-gray-600">
+          <Link href="/reset-password" className="text-indigo-600 hover:underline">
+            Forgot Password?
+          </Link>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8 mt-12 rounded-t-lg">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; {new Date().getFullYear()} Pruto. All rights reserved.</p>
-          <div className="flex justify-center space-x-6 mt-4">
-            <a href="#" className="text-gray-400 hover:text-white">Privacy Policy</a>
-            <a href="#" className="text-gray-400 hover:text-white">Terms of Service</a>
-            <a href="#" className="text-gray-400 hover:text-white">FAQ</a>
-          </div>
-        </div>
-      </footer>
+      </motion.div>
     </div>
   );
-};
-
-export default App;
+}
