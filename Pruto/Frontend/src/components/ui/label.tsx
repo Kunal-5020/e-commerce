@@ -1,5 +1,5 @@
 // components/ui/label.tsx
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 export function Label({
   children,

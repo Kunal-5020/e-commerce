@@ -1,5 +1,5 @@
 // components/ui/input.tsx
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 export function Input(props: React.InputHTMLAttributes<HTMLInputElement> & { className?: string }) {
   return (

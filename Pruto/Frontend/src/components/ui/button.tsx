@@ -1,5 +1,5 @@
 // components/ui/button.tsx
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 export function Button({ className = '', variant = 'default', ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'default' | 'outline' }) {
   const base = 'px-4 py-2 font-semibold rounded-md focus:outline-none';

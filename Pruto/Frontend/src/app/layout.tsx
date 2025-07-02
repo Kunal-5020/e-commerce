@@ -1,18 +1,14 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-
-<Toaster
-  toastOptions={{
-    position: "top-center",
-    duration: 3000,
-    style: { fontSize: "14px" },
-    success: { iconTheme: { primary: "#10b981", secondary: "#fff" } },
-    error:   { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
-  }}
-/>
-
+import { AuthProvider } from '../lib/authContext';
+import { CartProvider } from '../lib/cartContext';
+import LayoutWrapper from '../components/LayoutWrapper';
+// import { usePathname } from 'next/navigation'; 
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,13 +30,36 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // const pathname = usePathname();
+  // const hideNavAndFooter = pathname === '/checkout';
+
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <Toaster position="top-center" reverseOrder={false} />
-        {children}
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          toastOptions={{
+            duration: 3000,
+            style: { fontSize: "14px" },
+            success: { iconTheme: { primary: "#10b981", secondary: "#fff" } },
+            error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
+          }}
+        />
+        {/* {!hideNavAndFooter && <Navbar />} */}
+        <AuthProvider>
+          <CartProvider>
+            <Navbar />
+            {/* <LayoutWrapper> */}
+              {children}
+            {/* </LayoutWrapper> */}
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
+        
+        {/* {!hideNavAndFooter && <Footer />} */}
       </body>
     </html>
   );
