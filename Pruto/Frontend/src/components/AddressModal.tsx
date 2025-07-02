@@ -113,3 +113,5 @@ const AddressModal: React.FC<AddressModalProps> = ({ address, onClose, onSubmit 
 };
 
 export default AddressModal;
+export type { ShippingAddress };
+

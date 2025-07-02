@@ -13,11 +13,11 @@ import { Mail, ArrowLeft, Shield, KeyRound, CheckCircle, AlertCircle } from 'luc
 import { motion } from 'framer-motion';
 
 // Import Firebase functions from the correct relative paths (now .ts)
-import { resetPassword, onAuthStateChanged } from '../../components/firebase/firebaseAuth';
+import { resetPassword, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
 
 // Import shadcn/ui components from the correct relative paths
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
 
 const resetPasswordSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),

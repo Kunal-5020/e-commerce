@@ -10,10 +10,10 @@ import { LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // Import Firebase functions
-import { signOut, onAuthStateChanged } from '../../components/firebase/firebaseAuth';
+import { signOut, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
 
 // Import shadcn/ui components
-import { Button } from '../../components/ui/button';
+import { Button } from '../../../components/ui/button';
 
 export default function LogoutPage() {
   const router = useRouter();

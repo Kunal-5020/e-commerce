@@ -7,21 +7,25 @@ import { toast } from 'react-hot-toast';
 import { Mail, ArrowLeft, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 // Import Firebase functions
-import { resendVerification, onAuthStateChanged, User } from '../../components/firebase/firebaseAuth';
+import { resendVerification, onAuthStateChanged, User } from '../../../components/firebase/firebaseAuth';
 // Assume shadcn/ui components are imported and configured
-import { Button } from '../../components/ui/button';
+import { Button } from '../../../components/ui/button';
 
 export default function ResendVerificationPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isSending, setIsSending] = useState(false);
+  let toastShown = false;
 
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged((user) => {
       setCurrentUser(user);
       if (user && user.emailVerified) {
+         if (!toastShown) {
         toast.success('Your email is already verified!');
+        toastShown = true;
+        } 
         router.push('/'); // Redirect if already verified
       }
     });

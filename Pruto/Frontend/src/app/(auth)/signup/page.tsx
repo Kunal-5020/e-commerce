@@ -15,12 +15,12 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 // Import Firebase functions from the correct relative paths (now .ts)
-import { signupWithEmail, loginWithGoogle, onAuthStateChanged } from '../../components/firebase/firebaseAuth';
-import { setupRecaptcha, sendOtp, verifyOtp, resetRecaptcha } from '../../components/firebase/firebasePhoneAuth';
+import { signupWithEmail, loginWithGoogle, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
+import { setupRecaptcha, sendOtp, verifyOtp, resetRecaptcha } from '../../../components/firebase/firebasePhoneAuth';
 
 // Import shadcn/ui components from the correct relative paths
-import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
+import { Button } from '../../../components/ui/button';
+import { Input } from '../../../components/ui/input';
 import { ConfirmationResult } from 'firebase/auth'; // Import ConfirmationResult type
 
 const signupSchema = z.object({

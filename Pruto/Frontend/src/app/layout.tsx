@@ -43,7 +43,7 @@ export default function RootLayout({
           reverseOrder={false}
           toastOptions={{
             duration: 3000,
-            style: { fontSize: "14px" },
+            style: { fontSize: "20px" },
             success: { iconTheme: { primary: "#10b981", secondary: "#fff" } },
             error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
           }}

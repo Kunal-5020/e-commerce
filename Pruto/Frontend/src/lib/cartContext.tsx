@@ -50,6 +50,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const { currentUser } = useAuth();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [cartLoading, setCartLoading] = useState<boolean>(true);
+    let toastShown = false;
 
     const fetchCart = useCallback(async () => {
         if (!currentUser) {
@@ -66,7 +67,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             if (error.message.includes('Cart is empty or not found')) {
                 setCartItems([]);
             } else {
+                if (!toastShown) {
                 toast.error(`Failed to load cart: ${error.message}`);
+                toastShown = true;
+                }
             }
         } finally {
             setCartLoading(false);
