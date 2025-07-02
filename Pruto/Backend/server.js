@@ -20,6 +20,7 @@ const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 // const paymentRoutes = require("./routes/paymentRoutes");
 
 
@@ -28,9 +29,17 @@ app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
+app.use('/api/admin', adminRoutes);
+
 // app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => res.send("Pruto Backend Server is running"));
+
+// Error handling middleware (optional, but good practice)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
 // MongoDB Connection
 mongoose

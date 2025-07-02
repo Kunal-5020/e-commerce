@@ -5,7 +5,8 @@ const serviceAccount = require('./firebase.json'); // Path to your downloaded se
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://e-commerce-3070e-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
 console.log('Firebase Admin SDK initialized.');

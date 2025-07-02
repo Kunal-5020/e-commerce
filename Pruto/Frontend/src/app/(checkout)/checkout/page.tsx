@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../lib/authContext';
 import { useCart } from '../../../lib/cartContext';
 import { fetchWithAuth, BASE_API_URL } from '../../../lib/api';
-import AddressModal from '../../../components/AddressModal'; // Import the AddressModal component
+import AddressModal from '../../../components/ui/AddressModal'; // Import the AddressModal component
 import toast from 'react-hot-toast'; // Import toast
 
 interface ShippingAddress {
-    _id: string;
+    _id?: string;
     addressName?: string;
     street: string;
     city: string;
@@ -54,9 +54,9 @@ const CheckoutPage: React.FC = () => {
             setUserProfile(data);
             const defaultAddr = data.shippingAddresses.find(addr => addr.isDefault);
             if (defaultAddr) {
-                setSelectedAddressId(defaultAddr._id);
+                setSelectedAddressId(defaultAddr._id ?? '');
             } else if (data.shippingAddresses.length > 0) {
-                setSelectedAddressId(data.shippingAddresses[0]._id);
+                setSelectedAddressId(data.shippingAddresses[0]._id ?? '');
             }
         } catch (error: any) {
             console.error('Error fetching user profile:', error);
@@ -149,227 +149,440 @@ const CheckoutPage: React.FC = () => {
         }
     };
 
-
-    if (loading) return <div className="text-center p-8 min-h-screen">Loading checkout information...</div>;
-    if (!userProfile) return <div className="text-center p-8 text-red-500">User profile not loaded.</div>;
+    if (loading) return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+            <div className="text-center">
+                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-xl text-slate-600">Loading checkout information...</p>
+            </div>
+        </div>
+    );
+    
+    if (!userProfile) return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+            <div className="text-center p-8 bg-white rounded-2xl shadow-xl">
+                <div className="text-6xl mb-4">⚠️</div>
+                <p className="text-xl text-red-500 font-semibold">User profile not loaded.</p>
+            </div>
+        </div>
+    );
+    
     if (cartItems.length === 0) return (
-        <div className="text-center p-8 min-h-screen text-gray-600 text-lg">
-            Your cart is empty. <button onClick={() => router.push('/products')} className="text-blue-600 hover:underline">Start shopping!</button>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+            <div className="text-center p-12 bg-white rounded-2xl shadow-xl max-w-md">
+                <div className="text-8xl mb-6">🛒</div>
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Your cart is empty</h2>
+                <p className="text-slate-600 mb-6">Looks like you haven't added anything to your cart yet.</p>
+                <button 
+                    onClick={() => router.push('/products')} 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                >
+                    Start Shopping
+                </button>
+            </div>
         </div>
     );
 
     return (
-        <div className="container mx-auto p-8 min-h-screen">
-            <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Checkout</h1>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+            {/* Animated background elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
+                <div className="absolute top-1/2 -left-4 w-96 h-96 bg-gradient-to-br from-indigo-400/10 to-pink-400/10 rounded-full blur-2xl animate-pulse delay-1000"></div>
+            </div>
 
-            <div className="bg-white rounded-lg shadow-lg p-6">
-                {/* Progress Indicator */}
-                <div className="flex justify-between mb-8 text-center">
-                    <div className={`flex-1 ${currentStep >= 1 ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
-                        <div className="text-lg">1. Shipping</div>
-                        <div className={`h-1 ${currentStep >= 1 ? 'bg-blue-600' : 'bg-gray-300'} rounded-full mt-1`}></div>
-                    </div>
-                    <div className={`flex-1 ${currentStep >= 2 ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
-                        <div className="text-lg">2. Payment</div>
-                        <div className={`h-1 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'} rounded-full mt-1`}></div>
-                    </div>
-                    <div className={`flex-1 ${currentStep >= 3 ? 'text-blue-600 font-semibold' : 'text-gray-500'}`}>
-                        <div className="text-lg">3. Summary</div>
-                        <div className={`h-1 ${currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-300'} rounded-full mt-1`}></div>
-                    </div>
+            <div className="relative container mx-auto px-4 py-8 max-w-4xl">
+                {/* Header */}
+                <div className="text-center mb-12">
+                    <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-4">
+                        Secure Checkout
+                    </h1>
+                    <p className="text-slate-600 text-lg">Complete your purchase in just a few steps</p>
                 </div>
 
-                {/* Step 1: Shipping Information */}
-                {currentStep === 1 && (
-                    <div>
-                        <h2 className="text-2xl font-bold mb-6">Shipping Information</h2>
-                        <div className="space-y-4">
-                            {userProfile.shippingAddresses.length === 0 ? (
-                                <p className="text-gray-600">No shipping addresses found. Please add one.</p>
-                            ) : (
-                                userProfile.shippingAddresses.map(address => (
-                                    <div
-                                        key={address._id}
-                                        className={`p-4 border rounded-md cursor-pointer ${selectedAddressId === address._id ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300'}`}
-                                        onClick={() => setSelectedAddressId(address._id)}
+                <div className="bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+                    {/* Progress Indicator */}
+                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+                        <div className="flex justify-between items-center max-w-2xl mx-auto">
+                            {[1, 2, 3].map((step) => (
+                                <div key={step} className="flex items-center">
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg transition-all duration-500 ${
+                                        currentStep >= step 
+                                            ? 'bg-white/30 scale-110' 
+                                            : 'bg-white/10'
+                                    }`}>
+                                        {currentStep > step ? '✓' : step}
+                                    </div>
+                                    <div className="ml-3 text-white">
+                                        <div className="font-semibold">
+                                            {step === 1 ? 'Shipping' : step === 2 ? 'Payment' : 'Summary'}
+                                        </div>
+                                        <div className="text-xs opacity-80">
+                                            {step === 1 ? 'Delivery details' : step === 2 ? 'Payment method' : 'Review order'}
+                                        </div>
+                                    </div>
+                                    {step < 3 && (
+                                        <div className={`hidden sm:block w-16 h-1 ml-6 rounded-full transition-all duration-500 ${
+                                            currentStep > step ? 'bg-white/40' : 'bg-white/20'
+                                        }`}></div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="p-8">
+                        {/* Step 1: Shipping Information */}
+                        {currentStep === 1 && (
+                            <div className="animate-fadeIn">
+                                <div className="flex items-center mb-8">
+                                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mr-4">
+                                        <span className="text-white text-xl">🚚</span>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-slate-800">Shipping Information</h2>
+                                        <p className="text-slate-600">Where should we deliver your order?</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4 mb-8">
+                                    {userProfile.shippingAddresses.length === 0 ? (
+                                        <div className="text-center p-12 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border-2 border-dashed border-slate-300">
+                                            <div className="text-6xl mb-4">📍</div>
+                                            <p className="text-slate-600 text-lg mb-4">No shipping addresses found</p>
+                                            <p className="text-slate-500">Add your first address to continue</p>
+                                        </div>
+                                    ) : (
+                                        userProfile.shippingAddresses.map((address, index) => (
+                                            <div
+                                                key={address._id}
+                                                className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
+                                                    selectedAddressId === address._id 
+                                                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 shadow-lg ring-4 ring-blue-100' 
+                                                        : 'bg-white border-2 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                                                }`}
+                                                onClick={() => setSelectedAddressId(address._id ?? '')}
+                                            >
+                                                <div className="flex items-start">
+                                                    <input
+                                                        type="radio"
+                                                        id={`address-${address._id}`}
+                                                        name="shippingAddress"
+                                                        value={address._id}
+                                                        checked={selectedAddressId === address._id}
+                                                        onChange={() => setSelectedAddressId(address._id ?? '')}
+                                                        className="mt-1 w-5 h-5 text-blue-600 border-2 border-slate-300 focus:ring-blue-500"
+                                                    />
+                                                    <div className="ml-4 flex-1">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <label htmlFor={`address-${address._id}`} className="text-lg font-bold text-slate-800">
+                                                                {address.addressName || `Address ${index + 1}`}
+                                                            </label>
+                                                            {address.isDefault && (
+                                                                <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                                                                    Default
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-slate-600 leading-relaxed">
+                                                            {address.street}<br />
+                                                            {address.city}, {address.state} {address.zipCode}<br />
+                                                            {address.country}
+                                                        </p>
+                                                        <div className="flex space-x-4 mt-4">
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); setEditingAddress(address); setShowAddressModal(true); }}
+                                                                className="text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors duration-200"
+                                                            >
+                                                                ✏️ Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); address._id && handleDeleteAddress(address._id); }}
+                                                                className="text-red-500 hover:text-red-700 font-semibold text-sm transition-colors duration-200"
+                                                            >
+                                                                🗑️ Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {selectedAddressId === address._id && (
+                                                    <div className="absolute top-4 right-4">
+                                                        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                                            <span className="text-white text-xs">✓</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
+                                    className="w-full sm:w-auto bg-gradient-to-r from-slate-600 to-slate-700 text-white px-8 py-4 rounded-2xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all duration-300 transform hover:scale-105 shadow-lg mb-8"
+                                >
+                                    + Add New Address
+                                </button>
+
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={handleNextStep}
+                                        disabled={!selectedAddressId}
+                                        className={`px-12 py-4 rounded-2xl text-lg font-bold transition-all duration-300 transform ${
+                                            !selectedAddressId 
+                                                ? 'bg-slate-300 text-slate-500 cursor-not-allowed' 
+                                                : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 hover:scale-105 shadow-lg'
+                                        }`}
                                     >
-                                        <input
-                                            type="radio"
-                                            id={`address-${address._id}`}
-                                            name="shippingAddress"
-                                            value={address._id}
-                                            checked={selectedAddressId === address._id}
-                                            onChange={() => setSelectedAddressId(address._id)}
-                                            className="mr-2"
-                                        />
-                                        <label htmlFor={`address-${address._id}`} className="font-semibold">{address.addressName || 'Address'}</label>
-                                        <p className="text-gray-700">{address.street}, {address.city}, {address.state} {address.zipCode}, {address.country}</p>
-                                        <div className="flex space-x-2 mt-2">
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); setEditingAddress(address); setShowAddressModal(true); }}
-                                                className="text-blue-500 hover:underline text-sm"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteAddress(address._id); }}
-                                                className="text-red-500 hover:underline text-sm"
-                                            >
-                                                Delete
-                                            </button>
+                                        Continue to Payment →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step 2: Payment Information */}
+                        {currentStep === 2 && (
+                            <div className="animate-fadeIn">
+                                <div className="flex items-center mb-8">
+                                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-4">
+                                        <span className="text-white text-xl">💳</span>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-slate-800">Payment Method</h2>
+                                        <p className="text-slate-600">Choose how you'd like to pay</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6 mb-8">
+                                    <div
+                                        className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
+                                            paymentMethod === 'Credit Card' 
+                                                ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 shadow-lg ring-4 ring-blue-100' 
+                                                : 'bg-white border-2 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                                        }`}
+                                        onClick={() => setPaymentMethod('Credit Card')}
+                                    >
+                                        <div className="flex items-start">
+                                            <input
+                                                type="radio"
+                                                id="payment-credit"
+                                                name="paymentMethod"
+                                                value="Credit Card"
+                                                checked={paymentMethod === 'Credit Card'}
+                                                onChange={() => setPaymentMethod('Credit Card')}
+                                                className="mt-1 w-5 h-5 text-blue-600 border-2 border-slate-300 focus:ring-blue-500"
+                                            />
+                                            <div className="ml-4 flex-1">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <label htmlFor="payment-credit" className="text-lg font-bold text-slate-800">Credit Card</label>
+                                                    <div className="flex space-x-2">
+                                                        <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">V</div>
+                                                        <div className="w-8 h-5 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">M</div>
+                                                        <div className="w-8 h-5 bg-green-600 rounded text-white text-xs flex items-center justify-center font-bold">A</div>
+                                                    </div>
+                                                </div>
+                                                <p className="text-slate-600 mb-4">Secure payment with your credit or debit card</p>
+                                                
+                                                {paymentMethod === 'Credit Card' && (
+                                                    <div className="mt-6 space-y-4 animate-slideDown">
+                                                        <div>
+                                                            <label htmlFor="card-number" className="block text-slate-700 font-semibold mb-2">Card Number</label>
+                                                            <input 
+                                                                type="text" 
+                                                                id="card-number" 
+                                                                placeholder="1234 5678 9012 3456" 
+                                                                className="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg"
+                                                            />
+                                                        </div>
+                                                        <div className="flex space-x-4">
+                                                            <div className="flex-1">
+                                                                <label htmlFor="expiry-date" className="block text-slate-700 font-semibold mb-2">Expiry Date</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    id="expiry-date" 
+                                                                    placeholder="MM/YY" 
+                                                                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg"
+                                                                />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <label htmlFor="cvv" className="block text-slate-700 font-semibold mb-2">CVV</label>
+                                                                <input 
+                                                                    type="text" 
+                                                                    id="cvv" 
+                                                                    placeholder="123" 
+                                                                    className="w-full p-4 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-lg"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {paymentMethod === 'Credit Card' && (
+                                            <div className="absolute top-4 right-4">
+                                                <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                                    <span className="text-white text-xs">✓</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div
+                                        className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
+                                            paymentMethod === 'PayPal' 
+                                                ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 shadow-lg ring-4 ring-blue-100' 
+                                                : 'bg-white border-2 border-slate-200 hover:border-slate-300 hover:shadow-md'
+                                        }`}
+                                        onClick={() => setPaymentMethod('PayPal')}
+                                    >
+                                        <div className="flex items-start">
+                                            <input
+                                                type="radio"
+                                                id="payment-paypal"
+                                                name="paymentMethod"
+                                                value="PayPal"
+                                                checked={paymentMethod === 'PayPal'}
+                                                onChange={() => setPaymentMethod('PayPal')}
+                                                className="mt-1 w-5 h-5 text-blue-600 border-2 border-slate-300 focus:ring-blue-500"
+                                            />
+                                            <div className="ml-4 flex-1">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <label htmlFor="payment-paypal" className="text-lg font-bold text-slate-800">PayPal</label>
+                                                    <div className="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-bold">PayPal</div>
+                                                </div>
+                                                <p className="text-slate-600">Fast, secure payment with your PayPal account</p>
+                                            </div>
+                                        </div>
+                                        {paymentMethod === 'PayPal' && (
+                                            <div className="absolute top-4 right-4">
+                                                <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                                    <span className="text-white text-xs">✓</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between">
+                                    <button
+                                        onClick={() => setCurrentStep(1)}
+                                        className="px-8 py-4 bg-slate-200 text-slate-700 rounded-2xl font-semibold hover:bg-slate-300 transition-all duration-300 transform hover:scale-105"
+                                    >
+                                        ← Back
+                                    </button>
+                                    <button
+                                        onClick={handleNextStep}
+                                        className="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                                    >
+                                        Review Order →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Step 3: Order Summary */}
+                        {currentStep === 3 && (
+                            <div className="animate-fadeIn">
+                                <div className="flex items-center mb-8">
+                                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mr-4">
+                                        <span className="text-white text-xl">📋</span>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-3xl font-bold text-slate-800">Order Summary</h2>
+                                        <p className="text-slate-600">Review your order before placing it</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6 mb-8">
+                                    {/* Shipping Address */}
+                                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                                            <span className="text-2xl mr-3">🚚</span>
+                                            Shipping Address
+                                        </h3>
+                                        {selectedAddressId && userProfile.shippingAddresses.find(a => a._id === selectedAddressId) ? (
+                                            <div className="text-slate-700 leading-relaxed">
+                                                {(() => {
+                                                    const addr = userProfile.shippingAddresses.find(a => a._id === selectedAddressId)!;
+                                                    return (
+                                                        <>
+                                                            <div className="font-semibold text-lg">{addr.addressName || 'Delivery Address'}</div>
+                                                            <div className="mt-2">{addr.street}</div>
+                                                            <div>{addr.city}, {addr.state} {addr.zipCode}</div>
+                                                            <div>{addr.country}</div>
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                        ) : (
+                                            <p className="text-red-500">No shipping address selected.</p>
+                                        )}
+                                    </div>
+
+                                    {/* Payment Method */}
+                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                                            <span className="text-2xl mr-3">💳</span>
+                                            Payment Method
+                                        </h3>
+                                        <div className="text-slate-700 text-lg font-semibold">{paymentMethod}</div>
+                                    </div>
+
+                                    {/* Order Items */}
+                                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
+                                        <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
+                                            <span className="text-2xl mr-3">🛍️</span>
+                                            Order Items ({cartItems.length} items)
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {cartItems.map(item => (
+                                                <div key={item.product._id + (item.selectedSize || '') + (item.selectedColor ? item.selectedColor.hexCode : '')} 
+                                                     className="flex justify-between items-center py-4 border-b border-purple-200 last:border-0">
+                                                    <div className="flex-1">
+                                                        <div className="font-semibold text-slate-800 text-lg">{item.product.name}</div>
+                                                        <div className="text-slate-600">Quantity: {item.quantity}</div>
+                                                        {item.selectedSize && <div className="text-slate-500 text-sm">Size: {item.selectedSize}</div>}
+                                                        {item.selectedColor && <div className="text-slate-500 text-sm">Color: {item.selectedColor.name || item.selectedColor.hexCode}</div>}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-2xl font-bold text-slate-800">${(item.product.price * item.quantity).toFixed(2)}</div>
+                                                        <div className="text-slate-500 text-sm">${item.product.price.toFixed(2)} each</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        
+                                        {/* Order Total */}
+                                        <div className="mt-8 pt-6 border-t-2 border-purple-200">
+                                            <div className="flex justify-between items-center">
+                                                <div className="text-2xl font-bold text-slate-800">Total Amount</div>
+                                                <div className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                                    ${cartTotal.toFixed(2)}
+                                                </div>
+                                            </div>
+                                            <div className="text-slate-600 text-right mt-1">Including all taxes and fees</div>
                                         </div>
                                     </div>
-                                ))
-                            )}
-                        </div>
-                        <button
-                            onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
-                            className="mt-6 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
-                        >
-                            Add New Address
-                        </button>
-                        <div className="flex justify-end mt-8">
-                            <button
-                                onClick={handleNextStep}
-                                disabled={!selectedAddressId}
-                                className={`bg-blue-500 text-white px-6 py-3 rounded-md text-lg font-semibold transition duration-300 ${!selectedAddressId ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
-                            >
-                                Next: Payment
-                            </button>
-                        </div>
-                    </div>
-                )}
+                                </div>
 
-                {/* Step 2: Payment Information */}
-                {currentStep === 2 && (
-                    <div>
-                        <h2 className="text-2xl font-bold mb-6">Payment Information</h2>
-                        <div className="space-y-4">
-                            <div
-                                className={`p-4 border rounded-md cursor-pointer ${paymentMethod === 'Credit Card' ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300'}`}
-                                onClick={() => setPaymentMethod('Credit Card')}
-                            >
-                                <input
-                                    type="radio"
-                                    id="payment-credit"
-                                    name="paymentMethod"
-                                    value="Credit Card"
-                                    checked={paymentMethod === 'Credit Card'}
-                                    onChange={() => setPaymentMethod('Credit Card')}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="payment-credit" className="font-semibold">Credit Card</label>
-                                <p className="text-gray-600 text-sm">Visa, Mastercard, American Express</p>
-                                {/* Placeholder for credit card form fields */}
-                                {paymentMethod === 'Credit Card' && (
-                                    <div className="mt-4 space-y-3">
-                                        <div>
-                                            <label htmlFor="card-number" className="block text-gray-700 text-sm font-medium mb-1">Card Number</label>
-                                            <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" className="w-full p-2 border border-gray-300 rounded-md" />
-                                        </div>
-                                        <div className="flex space-x-4">
-                                            <div className="flex-1">
-                                                <label htmlFor="expiry-date" className="block text-gray-700 text-sm font-medium mb-1">Expiry Date</label>
-                                                <input type="text" id="expiry-date" placeholder="MM/YY" className="w-full p-2 border border-gray-300 rounded-md" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <label htmlFor="cvv" className="block text-gray-700 text-sm font-medium mb-1">CVV</label>
-                                                <input type="text" id="cvv" placeholder="123" className="w-full p-2 border border-gray-300 rounded-md" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                <div className="flex justify-between">
+                                    <button
+                                        onClick={() => setCurrentStep(2)}
+                                        className="px-8 py-4 bg-slate-200 text-slate-700 rounded-2xl font-semibold hover:bg-slate-300 transition-all duration-300 transform hover:scale-105"
+                                    >
+                                        ← Back
+                                    </button>
+                                    <button
+                                        onClick={handlePlaceOrder}
+                                        className="px-12 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-2xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-xl text-xl"
+                                    >
+                                        🎉 Place Order - ${cartTotal.toFixed(2)}
+                                    </button>
+                                </div>
                             </div>
-
-                            <div
-                                className={`p-4 border rounded-md cursor-pointer ${paymentMethod === 'PayPal' ? 'border-blue-500 ring-2 ring-blue-200' : 'border-gray-300'}`}
-                                onClick={() => setPaymentMethod('PayPal')}
-                            >
-                                <input
-                                    type="radio"
-                                    id="payment-paypal"
-                                    name="paymentMethod"
-                                    value="PayPal"
-                                    checked={paymentMethod === 'PayPal'}
-                                    onChange={() => setPaymentMethod('PayPal')}
-                                    className="mr-2"
-                                />
-                                <label htmlFor="payment-paypal" className="font-semibold">PayPal</label>
-                                <p className="text-gray-600 text-sm">Pay securely with your PayPal account.</p>
-                            </div>
-                        </div>
-                        <div className="flex justify-between mt-8">
-                            <button
-                                onClick={() => setCurrentStep(1)}
-                                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-md text-lg font-semibold hover:bg-gray-400 transition duration-300"
-                            >
-                                Back
-                            </button>
-                            <button
-                                onClick={handleNextStep}
-                                className="bg-blue-500 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-blue-600 transition duration-300"
-                            >
-                                Next: Order Summary
-                            </button>
-                        </div>
+                        )}
                     </div>
-                )}
-
-                {/* Step 3: Order Summary */}
-                {currentStep === 3 && (
-                    <div>
-                        <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
-
-                        <div className="border border-gray-200 rounded-md p-4 mb-6">
-                            <h3 className="text-xl font-semibold mb-3">Shipping To:</h3>
-                            {selectedAddressId && userProfile.shippingAddresses.find(a => a._id === selectedAddressId) ? (
-                                <p className="text-gray-700">
-                                    {userProfile.shippingAddresses.find(a => a._id === selectedAddressId)?.street}, <br />
-                                    {userProfile.shippingAddresses.find(a => a._id === selectedAddressId)?.city}, {userProfile.shippingAddresses.find(a => a._id === selectedAddressId)?.state} {userProfile.shippingAddresses.find(a => a._id === selectedAddressId)?.zipCode}, <br />
-                                    {userProfile.shippingAddresses.find(a => a._id === selectedAddressId)?.country}
-                                </p>
-                            ) : (
-                                <p className="text-red-500">No shipping address selected.</p>
-                            )}
-                        </div>
-
-                        <div className="border border-gray-200 rounded-md p-4 mb-6">
-                            <h3 className="text-xl font-semibold mb-3">Payment Method:</h3>
-                            <p className="text-gray-700">{paymentMethod}</p>
-                        </div>
-
-                        <div className="border border-gray-200 rounded-md p-4 mb-6">
-                            <h3 className="text-xl font-semibold mb-3">Items in Cart:</h3>
-                            <ul className="divide-y divide-gray-200">
-                                {cartItems.map(item => (
-                                    <li key={item.product._id + (item.selectedSize || '') + (item.selectedColor ? item.selectedColor.hexCode : '')} className="py-2 flex justify-between items-center">
-                                        <span className="text-gray-700">{item.product.name} (x{item.quantity})</span>
-                                        <span className="font-semibold">${(item.product.price * item.quantity).toFixed(2)}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="mt-4 pt-2 border-t border-gray-200 flex justify-between items-center font-bold text-lg">
-                                <span>Order Total:</span>
-                                <span>${cartTotal.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between mt-8">
-                            <button
-                                onClick={() => setCurrentStep(2)}
-                                className="bg-gray-300 text-gray-800 px-6 py-3 rounded-md text-lg font-semibold hover:bg-gray-400 transition duration-300"
-                            >
-                                Back
-                            </button>
-                            <button
-                                onClick={handlePlaceOrder}
-                                className="bg-green-500 text-white px-6 py-3 rounded-md text-lg font-semibold hover:bg-green-600 transition duration-300 shadow-md"
-                            >
-                                Place Order
-                            </button>
-                        </div>
-                    </div>
-                )}
+                </div>
             </div>
 
             {showAddressModal && (
@@ -379,6 +592,26 @@ const CheckoutPage: React.FC = () => {
                     onSubmit={handleAddressFormSubmit}
                 />
             )}
+
+            <style jsx>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .animate-fadeIn {
+                    animation: fadeIn 0.6s ease-out;
+                }
+                
+                .animate-slideDown {
+                    animation: slideDown 0.4s ease-out;
+                }
+            `}</style>
         </div>
     );
 };

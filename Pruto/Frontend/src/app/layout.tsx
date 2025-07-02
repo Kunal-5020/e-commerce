@@ -2,13 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "react-hot-toast";
-import { AuthProvider } from '../lib/authContext';
-import { CartProvider } from '../lib/cartContext';
-import LayoutWrapper from '../components/LayoutWrapper';
-// import { usePathname } from 'next/navigation'; 
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Providers from '../components/providers';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,28 +32,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          toastOptions={{
-            duration: 3000,
-            style: { fontSize: "20px" },
-            success: { iconTheme: { primary: "#10b981", secondary: "#fff" } },
-            error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
-          }}
-        />
-        {/* {!hideNavAndFooter && <Navbar />} */}
-        <AuthProvider>
-          <CartProvider>
-            <Navbar />
-            {/* <LayoutWrapper> */}
-              {children}
-            {/* </LayoutWrapper> */}
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
-        
-        {/* {!hideNavAndFooter && <Footer />} */}
+      <Providers>
+          {/* The children prop of RootLayout will be passed to Providers */}
+          {children}
+      </Providers>
       </body>
     </html>
   );

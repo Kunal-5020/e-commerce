@@ -1,9 +1,10 @@
+// backend/models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     firebaseUid: { type: String, required: true, unique: true, index: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    firstName: { type: String, required: true, trim: true },
+    firstName: { type: String, default: '', trim: true }, // Changed required: true to default: ''
     lastName: { type: String, trim: true },
     phone: { type: String, trim: true },
     shippingAddresses: [
@@ -19,9 +20,15 @@ const userSchema = new mongoose.Schema({
     ],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
-    role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' }, // Changed 'customer' to 'user' for consistency
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
+});
+
+// Update the 'updatedAt' field on save
+userSchema.pre('save', function(next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('User', userSchema);

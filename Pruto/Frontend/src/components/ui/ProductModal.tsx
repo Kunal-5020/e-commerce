@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast'; // Import toast
 
 interface Product {
-    _id?: string; // Optional for new products
+    _id?: string; // Made _id optional to handle new products
     name: string;
     description: string;
     price: number;
@@ -53,6 +53,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, onClose, onSubmit 
                 colors: product.colors || []
             });
         } else {
+            // Reset form for adding a new product
             setFormData({
                 name: '',
                 description: '',

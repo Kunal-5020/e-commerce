@@ -2,7 +2,7 @@
 // components/Footer.tsx
 import React from 'react';
 import Link from 'next/link';
-
+ 
 const Footer: React.FC = () => {
     return (
         <footer className="relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">

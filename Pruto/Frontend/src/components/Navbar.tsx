@@ -1,3 +1,4 @@
+
 // components/Navbar.tsx
 'use client'; // This component uses client-side hooks
 
@@ -9,6 +10,8 @@ import { useCart } from '../lib/cartContext';
 import toast from 'react-hot-toast'; // Import toast
 import { signOut } from './firebase/firebaseAuth';
 import Image from 'next/image';
+import { ShoppingCart, User, Menu, X, Home, Smartphone, Phone, Info, Heart, Settings, Package, LogOut, ChevronDown } from 'lucide-react';
+
 
 const Navbar: React.FC = () => {
     const { currentUser, isAdmin } = useAuth();
@@ -41,7 +44,7 @@ const Navbar: React.FC = () => {
     // Close mobile menu when route changes
     useEffect(() => {
         setIsMobileMenuOpen(false);
-    }, [router]);
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -67,39 +70,51 @@ const Navbar: React.FC = () => {
 
     return (
         <>
-            <nav className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 sticky top-0 z-50 transition-all duration-300">
+            <nav className="bg-white/80 backdrop-blur-xl shadow-lg border-b border-white/20 sticky top-0 z-50 transition-all duration-300">
+                {/* Gradient border effect */}
+                <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50"></div>
+                
                 <div className="container mx-auto px-4 lg:px-6">
-                    <div className="flex justify-between items-center h-16">
+                    <div className="flex justify-between items-center h-18">
                         {/* Logo */}
                         <div 
-                            className="flex items-center space-x-3 cursor-pointer group transition-transform duration-200 hover:scale-105" 
+                            className="flex items-center space-x-3 cursor-pointer group transition-all duration-300 hover:scale-105" 
                             onClick={() => router.push('/')}
                         >
-                            <div className="relative overflow-hidden rounded-xl p-1 bg-gradient-to-r from-blue-500 to-purple-600">
-                                <Image 
-                                    src="/pruto.png" 
-                                    alt="Pruto Logo" 
-                                    width={40} 
-                                    height={40} 
-                                    className="rounded-lg"
-                                />
+                            <div className="relative overflow-hidden rounded-2xl p-2 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 shadow-lg group-hover:shadow-xl transition-all duration-300">
+                                {/* Animated background */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                                <div className="relative overflow-hidden rounded-xl p-1 bg-gradient-to-r from-blue-500 to-purple-600">
+                                        <Image 
+                                            src="/pruto.png" 
+                                            alt="Pruto Logo" 
+                                            width={40} 
+                                            height={40} 
+                                            className="rounded-lg"
+                                        />
+                                </div>
                             </div>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                Pruto
-                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-2xl font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:via-pink-600 group-hover:to-blue-600 transition-all duration-500">
+                                    Pruto
+                                </span>
+                                <span className="text-xs text-gray-500 font-medium -mt-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                    Premium Store
+                                </span>
+                            </div>
                         </div>
                         
                         {/* Desktop Navigation */}
-                        <div className="hidden lg:flex items-center space-x-1">
-                            <NavLink href="/" icon="🏠">Home</NavLink>
-                            <NavLink href="/products" icon="📱">Products</NavLink>
-                            <NavLink href="/contact" icon="📞">Contact</NavLink>
-                            <NavLink href="/about" icon="ℹ️">About</NavLink>
+                        <div className="hidden lg:flex items-center space-x-2">
+                            <NavLink href="/" icon={<Home className="w-4 h-4" />}>Home</NavLink>
+                            <NavLink href="/products" icon={<Smartphone className="w-4 h-4" />}>Products</NavLink>
+                            <NavLink href="/contact" icon={<Phone className="w-4 h-4" />}>Contact</NavLink>
+                            <NavLink href="/about" icon={<Info className="w-4 h-4" />}>About</NavLink>
                             {currentUser && (
                                 <>
-                                    <NavLink href="/wishlist" icon="❤️">Wishlist</NavLink>
+                                    <NavLink href="/wishlist" icon={<Heart className="w-4 h-4" />}>Wishlist</NavLink>
                                     {isAdmin && (
-                                        <NavLink href="/admin" className="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100" icon="⚙️">
+                                        <NavLink href="/admin" className="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 border border-red-200" icon={<Settings className="w-4 h-4" />}>
                                             Admin
                                         </NavLink>
                                     )}
@@ -108,20 +123,18 @@ const Navbar: React.FC = () => {
                         </div>
                         
                         {/* Right side controls */}
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-4">
                             {/* Cart Icon */}
                             <div 
-                                className="relative cursor-pointer group p-2 rounded-xl hover:bg-gray-100 transition-all duration-200" 
+                                className="relative cursor-pointer group p-3 rounded-2xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 hover:shadow-lg" 
                                 onClick={() => router.push('/cart')}
                             >
                                 <div className="relative">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700 group-hover:text-blue-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" />
-                                    </svg>
+                                    <ShoppingCart className="w-6 h-6 text-gray-700 group-hover:text-purple-600 transition-all duration-300 group-hover:scale-110" />
                                     {cartItemCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg animate-pulse">
-                                            {cartItemCount}
-                                        </span>
+                                        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center shadow-lg animate-bounce">
+                                            <span className="animate-pulse">{cartItemCount}</span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -131,75 +144,96 @@ const Navbar: React.FC = () => {
                                 <div className="relative" ref={userDropdownRef}>
                                     <button
                                         onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                                        className="flex items-center space-x-2 p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-200 group"
+                                        className="flex items-center space-x-3 p-3 rounded-2xl text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 transition-all duration-300 group hover:shadow-lg"
                                     >
                                         <div className="relative">
-                                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
+                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                                                <User className="w-5 h-5 text-white" />
                                             </div>
-                                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-sm animate-pulse"></div>
                                         </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 transition-all duration-200 ${isUserDropdownOpen ? 'rotate-180 text-blue-600' : 'group-hover:text-blue-600'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                                        </svg>
+                                        <div className="hidden sm:block text-left">
+                                            <p className="text-sm font-semibold text-gray-900 group-hover:text-purple-600 transition-colors duration-300">
+                                                Welcome back
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {currentUser.email?.split('@')[0]}
+                                            </p>
+                                        </div>
+                                        <ChevronDown className={`w-4 h-4 transition-all duration-300 ${isUserDropdownOpen ? 'rotate-180 text-purple-600' : 'group-hover:text-purple-600'}`} />
                                     </button>
                                     
                                     {/* User Dropdown Menu */}
                                     {isUserDropdownOpen && (
-                                        <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl py-2 z-50 border border-gray-100 animate-in slide-in-from-top-2 duration-200">
-                                            <div className="px-4 py-3 border-b border-gray-100">
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    {currentUser.email}
-                                                </p>
-                                                <p className="text-xs text-gray-500">
-                                                    Welcome back!
-                                                </p>
+                                        <div className="absolute right-0 mt-4 w-72 bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl py-3 z-50 border border-white/20 animate-in slide-in-from-top-2 duration-300">
+                                            {/* Header */}
+                                            <div className="px-6 py-4 border-b border-gray-100/50">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center">
+                                                        <User className="w-6 h-6 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-gray-900">
+                                                            {currentUser.email}
+                                                        </p>
+                                                        <p className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full inline-block mt-1">
+                                                            ✨ Premium Member
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <DropdownItem
-                                                href="/user-profile"
-                                                icon="👤"
-                                                onClick={() => setIsUserDropdownOpen(false)}
-                                            >
-                                                My Profile
-                                            </DropdownItem>
-                                            <DropdownItem
-                                                href="/orders"
-                                                icon="📦"
-                                                onClick={() => setIsUserDropdownOpen(false)}
-                                            >
-                                                My Orders
-                                            </DropdownItem>
-                                            <div className="border-t border-gray-100 my-1"></div>
-                                            <button
-                                                onClick={confirmLogout}
-                                                className="flex items-center space-x-3 w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 group"
-                                            >
-                                                <span className="text-base group-hover:scale-110 transition-transform duration-200">🚪</span>
-                                                <span className="font-medium">Logout</span>
-                                            </button>
+                                            
+                                            {/* Menu Items */}
+                                            <div className="py-2">
+                                                <DropdownItem
+                                                    href="/profile"
+                                                    icon={<User className="w-4 h-4" />}
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    My Profile
+                                                </DropdownItem>
+                                                <DropdownItem
+                                                    href="/profile?tab=orders"
+                                                    icon={<Package className="w-4 h-4" />}
+                                                    onClick={() => setIsUserDropdownOpen(false)}
+                                                >
+                                                    My Orders
+                                                </DropdownItem>
+                                                <div className="border-t border-gray-100/50 my-2 mx-4"></div>
+                                                <button
+                                                    onClick={confirmLogout}
+                                                    className="flex items-center space-x-3 w-full text-left px-6 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 group mx-2 rounded-xl"
+                                                >
+                                                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                                                    <span className="font-medium">Logout</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
                             ) : (
                                 <button
                                     onClick={() => router.push('/login')}
-                                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2.5 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                                    className="bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 text-white px-8 py-3 rounded-2xl hover:from-blue-600 hover:via-purple-700 hover:to-pink-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 hover:-translate-y-0.5"
                                 >
-                                    Login
+                                    <span className="flex items-center space-x-2">
+                                        <User className="w-4 h-4" />
+                                        <span>Login</span>
+                                    </span>
                                 </button>
                             )}
                             
                             {/* Mobile Menu Button */}
                             <div className="lg:hidden">
                                 <button 
-                                    className="p-2 rounded-xl text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none transition-all duration-200"
+                                    className="p-3 rounded-2xl text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 focus:outline-none transition-all duration-300 hover:shadow-lg"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
+                                    {isMobileMenuOpen ? (
+                                        <X className="w-6 h-6" />
+                                    ) : (
+                                        <Menu className="w-6 h-6" />
+                                    )}
                                 </button>
                             </div>
                         </div>
@@ -212,66 +246,76 @@ const Navbar: React.FC = () => {
                 <div className="fixed inset-0 z-50 lg:hidden">
                     {/* Backdrop */}
                     <div 
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+                        className="fixed inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
                         onClick={() => setIsMobileMenuOpen(false)}
                     ></div>
                     
                     {/* Sidebar */}
-                    <div className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out animate-in slide-in-from-right">
-                        <div className="p-6">
+                    <div className="fixed right-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-500 ease-out animate-in slide-in-from-right border-l border-white/20">
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-purple-50/30 to-pink-50/50 pointer-events-none"></div>
+                        
+                        <div className="relative p-6 h-full overflow-y-auto">
                             {/* Header */}
-                            <div className="flex justify-between items-center mb-8">
-                                <div className="flex items-center space-x-2">
-                                    <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                        <Image src="/pruto.png" alt="Pruto" width={24} height={24} className="rounded" />
+                            <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200/50">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+                                        <span className="text-white font-bold">P</span>
                                     </div>
-                                    <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                        Menu
-                                    </span>
+                                    <div>
+                                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                            Menu
+                                        </span>
+                                        <p className="text-xs text-gray-500">Navigation</p>
+                                    </div>
                                 </div>
                                 <button
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="p-2 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all duration-200"
+                                    className="p-2 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all duration-300 hover:scale-110"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
+                                    <X className="w-6 h-6" />
                                 </button>
                             </div>
                             
                             {/* Navigation Links */}
                             <div className="space-y-2">
-                                <MobileNavLink href="/" icon="🏠" onClick={() => setIsMobileMenuOpen(false)}>
+                                <MobileNavLink href="/" icon={<Home className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                     Home
                                 </MobileNavLink>
-                                <MobileNavLink href="/products" icon="📱" onClick={() => setIsMobileMenuOpen(false)}>
+                                <MobileNavLink href="/products" icon={<Smartphone className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                     Products
                                 </MobileNavLink>
-                                <MobileNavLink href="/contact" icon="📞" onClick={() => setIsMobileMenuOpen(false)}>
+                                <MobileNavLink href="/contact" icon={<Phone className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                     Contact Us
                                 </MobileNavLink>
-                                <MobileNavLink href="/about" icon="ℹ️" onClick={() => setIsMobileMenuOpen(false)}>
+                                <MobileNavLink href="/about" icon={<Info className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                     About Us
                                 </MobileNavLink>
                                 
                                 {currentUser && (
                                     <>
-                                        <div className="border-t border-gray-200 my-4 pt-4">
-                                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">
-                                                Account
-                                            </p>
+                                        <div className="border-t border-gray-200/50 my-6 pt-6">
+                                            <div className="flex items-center space-x-3 mb-4 px-4">
+                                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center">
+                                                    <User className="w-4 h-4 text-white" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-semibold text-gray-900">Account</p>
+                                                    <p className="text-xs text-gray-500">Manage your profile</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <MobileNavLink href="/wishlist" icon="❤️" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <MobileNavLink href="/wishlist" icon={<Heart className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                             Wishlist
                                         </MobileNavLink>
-                                        <MobileNavLink href="/user-profile" icon="👤" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <MobileNavLink href="/profile" icon={<User className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                             My Profile
                                         </MobileNavLink>
-                                        <MobileNavLink href="/orders" icon="📦" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <MobileNavLink href="/profile?tab=orders" icon={<Package className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)}>
                                             My Orders
                                         </MobileNavLink>
                                         {isAdmin && (
-                                            <MobileNavLink href="/admin" icon="⚙️" onClick={() => setIsMobileMenuOpen(false)} className="text-red-600 bg-red-50">
+                                            <MobileNavLink href="/admin" icon={<Settings className="w-5 h-5" />} onClick={() => setIsMobileMenuOpen(false)} className="text-red-600 bg-red-50 border border-red-200">
                                                 Admin Dashboard
                                             </MobileNavLink>
                                         )}
@@ -280,10 +324,10 @@ const Navbar: React.FC = () => {
                                                 setIsMobileMenuOpen(false);
                                                 confirmLogout();
                                             }}
-                                            className="flex items-center space-x-3 w-full text-left py-3 px-4 text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200 mt-4 border border-red-200"
+                                            className="flex items-center space-x-3 w-full text-left py-4 px-4 text-red-600 hover:bg-red-50 rounded-2xl transition-all duration-300 mt-6 border border-red-200 hover:border-red-300 group"
                                         >
-                                            <span className="text-lg">🚪</span>
-                                            <span className="font-medium">Logout</span>
+                                            <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                                            <span className="font-semibold">Logout</span>
                                         </button>
                                     </>
                                 )}
@@ -298,34 +342,35 @@ const Navbar: React.FC = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <div 
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                        className="fixed inset-0 bg-black/70 backdrop-blur-md animate-in fade-in duration-300"
                         onClick={cancelLogout}
                     ></div>
                     
                     {/* Modal */}
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95 duration-200">
-                        <div className="text-center">
-                            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
+                    <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-md animate-in zoom-in-95 duration-300 border border-white/20">
+                        {/* Gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-pink-50/30 rounded-3xl pointer-events-none"></div>
+                        
+                        <div className="relative text-center">
+                            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-3xl bg-gradient-to-br from-red-500 to-pink-500 mb-6 shadow-lg">
+                                <LogOut className="w-10 h-10 text-white" />
                             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-3">
                                 Confirm Logout
                             </h3>
-                            <p className="text-gray-600 mb-6">
+                            <p className="text-gray-600 mb-8 text-lg">
                                 Are you sure you want to logout from your account?
                             </p>
-                            <div className="flex space-x-3">
+                            <div className="flex space-x-4">
                                 <button
                                     onClick={cancelLogout}
-                                    className="flex-1 px-4 py-2.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 font-medium"
+                                    className="flex-1 px-6 py-4 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-all duration-300 font-semibold hover:scale-105"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-medium shadow-lg"
+                                    className="flex-1 px-6 py-4 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-2xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl hover:scale-105"
                                 >
                                     Logout
                                 </button>
@@ -342,7 +387,7 @@ interface NavLinkProps {
     href: string;
     children: React.ReactNode;
     className?: string;
-    icon?: string;
+    icon?: React.ReactNode;
 }
 
 const NavLink: React.FC<NavLinkProps> = ({ href, children, className = '', icon }) => {
@@ -357,23 +402,28 @@ const NavLink: React.FC<NavLinkProps> = ({ href, children, className = '', icon 
     );
 };
 
+
 interface DropdownItemProps {
     href: string;
     children: React.ReactNode;
     onClick: () => void;
-    icon?: string;
+    icon?: React.ReactNode;
 }
 
 const DropdownItem: React.FC<DropdownItemProps> = ({ href, children, onClick, icon }) => {
+    const handleClick = () => {
+        console.log(`Navigating to: ${href}`);
+        onClick();
+    };
+
     return (
-        <Link
-            href={href}
-            onClick={onClick}
-            className="flex items-center space-x-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-all duration-200 group"
+        <button
+            onClick={handleClick}
+            className="flex items-center space-x-3 w-full px-6 py-3 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 hover:text-purple-600 transition-all duration-300 group mx-2 rounded-xl"
         >
-            {icon && <span className="text-base group-hover:scale-110 transition-transform duration-200">{icon}</span>}
+            {icon && <span className="group-hover:scale-110 transition-transform duration-300">{icon}</span>}
             <span className="font-medium">{children}</span>
-        </Link>
+        </button>
     );
 };
 
@@ -382,19 +432,23 @@ interface MobileNavLinkProps {
     children: React.ReactNode;
     onClick: () => void;
     className?: string;
-    icon?: string;
+    icon?: React.ReactNode;
 }
 
 const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, className = '', icon }) => {
+    const handleClick = () => {
+        console.log(`Navigating to: ${href}`);
+        onClick();
+    };
+
     return (
-        <Link
-            href={href}
-            onClick={onClick}
-            className={`flex items-center space-x-3 py-3 px-4 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 font-medium group ${className}`}
+        <button
+            onClick={handleClick}
+            className={`flex items-center space-x-3 w-full py-4 px-4 text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 rounded-2xl transition-all duration-300 font-semibold group hover:shadow-lg hover:scale-105 ${className}`}
         >
-            {icon && <span className="text-lg group-hover:scale-110 transition-transform duration-200">{icon}</span>}
+            {icon && <span className="group-hover:scale-110 transition-transform duration-300">{icon}</span>}
             <span>{children}</span>
-        </Link>
+        </button>
     );
 };
 

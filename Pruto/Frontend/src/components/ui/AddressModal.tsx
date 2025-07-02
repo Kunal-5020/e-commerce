@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast'; // Import toast
 
 interface ShippingAddress {
-    _id?: string; // Optional for new addresses
+    _id?: string;
     addressName?: string;
     street: string;
     city: string;
