@@ -9,14 +9,15 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged as firebaseOnAuthStateChanged, // Renamed to avoid conflict
   User,
-  UserCredential
+  UserCredential,
+  getIdToken
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
 
 // Helper to get ID token and send to backend
 const sendTokenToBackend = async (user: User) => {
   if (!user) return;
-  const idToken = await user.getIdToken();
+  const idToken = await getIdToken(user);
   // Ensure this matches your backend server address
   const BACKEND_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
