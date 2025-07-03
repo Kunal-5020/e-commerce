@@ -18,10 +18,10 @@ const sendTokenToBackend = async (user: User) => {
   if (!user) return;
   const idToken = await user.getIdToken();
   // Ensure this matches your backend server address
-  const BACKEND_URL = 'http://localhost:5000/api/auth';
+  const BACKEND_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
   try {
-    const response = await fetch(`${BACKEND_URL}/verify-id-token`, {
+    const response = await fetch(`${BACKEND_URL}/auth/verify-id-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

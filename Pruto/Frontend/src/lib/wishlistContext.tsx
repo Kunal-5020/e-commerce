@@ -8,6 +8,9 @@ import toast from 'react-hot-toast';
 
 // Define the structure of a wishlist item (which is a Product in this case)
 interface WishlistItem {
+    description: string;
+    category: string;
+    stockQuantity: any;
     _id: string;
     name: string;
     price: number;

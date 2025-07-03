@@ -2,7 +2,7 @@
 import { auth } from '../components/firebase/firebase'; 
 
 // --- API Base URL (REPLACE WITH YOUR BACKEND URL) ---
-export const BASE_API_URL = 'http://localhost:5000/api'; 
+export const BASE_API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 interface FetchOptions extends RequestInit {
     headers?: HeadersInit;
