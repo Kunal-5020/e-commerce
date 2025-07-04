@@ -27,7 +27,8 @@ import {
     Mail,
     Phone,
     Shield,
-    Heart
+    Heart,
+    Menu
 } from 'lucide-react';
 
 import type { ShippingAddress } from '../../../components/ui/AddressModal';
@@ -105,6 +106,7 @@ const UserProfileClient: React.FC = () => {
     const [loadingProfileData, setLoadingProfileData] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>(searchParams.get('tab') || 'profile');
     const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
+    const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
     const [profileFormData, setProfileFormData] = useState({
         firstName: '',
         lastName: '',
@@ -241,6 +243,11 @@ const UserProfileClient: React.FC = () => {
         }
     };
 
+    const handleTabChange = (tabId: string) => {
+        setActiveTab(tabId);
+        setShowMobileMenu(false);
+    };
+
     const getOrderStatusIcon = (status: string) => {
         switch (status.toLowerCase()) {
             case 'delivered':
@@ -267,6 +274,13 @@ const UserProfileClient: React.FC = () => {
         }
     };
 
+    const tabs = [
+        { id: 'profile', label: 'Profile', icon: User },
+        { id: 'addresses', label: 'Addresses', icon: MapPin },
+        { id: 'orders', label: 'Orders', icon: Package },
+        { id: 'wishlist', label: 'Wishlist', icon: Heart }
+    ];
+
     // Show loading spinner if authentication is still in progress OR if profile data is loading
     if (authLoading || loadingProfileData) {
         return (
@@ -284,14 +298,14 @@ const UserProfileClient: React.FC = () => {
     // If auth is done loading and no currentUser, redirect to login
     if (!currentUser) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">
+                <div className="text-center p-6 sm:p-8 bg-white rounded-2xl shadow-xl max-w-md w-full">
                     <Shield className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Authentication Required</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Authentication Required</h2>
                     <p className="text-slate-600 mb-6">Please log in to access your account</p>
                     <button
                         onClick={() => router.push('/login')}
-                        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium"
+                        className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 font-medium w-full sm:w-auto"
                     >
                         Sign In
                     </button>
@@ -303,10 +317,10 @@ const UserProfileClient: React.FC = () => {
     // If currentUser exists but userProfile is null (meaning fetchUserProfile failed or returned null)
     if (!userProfile) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">
+                <div className="text-center p-6 sm:p-8 bg-white rounded-2xl shadow-xl max-w-md w-full">
                     <User className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">Profile Not Found</h2>
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Profile Not Found</h2>
                     <p className="text-slate-600">Unable to load your profile information</p>
                 </div>
             </div>
@@ -317,34 +331,39 @@ const UserProfileClient: React.FC = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
             {/* Header Section */}
             <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="flex items-center space-x-4">
-                        <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl">
-                            <User className="w-8 h-8 text-white" />
+                <div className="container mx-auto px-4 py-6 sm:py-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3 sm:space-x-4">
+                            <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl sm:rounded-2xl">
+                                <User className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    My Account
+                                </h1>
+                                <p className="text-slate-600 text-sm sm:text-base">Welcome back, {userProfile.firstName}!</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                My Account
-                            </h1>
-                            <p className="text-slate-600">Welcome back, {userProfile.firstName}!</p>
-                        </div>
+                        
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setShowMobileMenu(!showMobileMenu)}
+                            className="md:hidden p-2 rounded-lg bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors"
+                        >
+                            <Menu className="w-6 h-6" />
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 py-8">
-                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
-                    {/* Navigation Tabs */}
-                    <div className="flex border-b border-slate-200 bg-slate-50/50">
-                        {[
-                            { id: 'profile', label: 'Profile', icon: User },
-                            { id: 'addresses', label: 'Addresses', icon: MapPin },
-                            { id: 'orders', label: 'Orders', icon: Package },
-                            { id: 'wishlist', label: 'Wishlist', icon: Heart }
-                        ].map(({ id, label, icon: Icon }) => (
+            <div className="container mx-auto px-4 py-4 sm:py-8">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
+                    {/* Desktop Navigation Tabs */}
+                    <div className="hidden md:flex border-b border-slate-200 bg-slate-50/50">
+                        {tabs.map(({ id, label, icon: Icon }) => (
                             <button
                                 key={id}
-                                onClick={() => setActiveTab(id)}
+                                onClick={() => handleTabChange(id)}
                                 className={`flex items-center space-x-2 px-6 py-4 font-medium transition-all duration-200 ${
                                     activeTab === id
                                         ? 'border-b-2 border-purple-500 text-purple-600 bg-white'
@@ -357,17 +376,55 @@ const UserProfileClient: React.FC = () => {
                         ))}
                     </div>
 
-                    <div className="p-8">
+                    {/* Mobile Navigation Dropdown */}
+                    {showMobileMenu && (
+                        <div className="md:hidden bg-slate-50 border-b border-slate-200">
+                            <div className="py-2">
+                                {tabs.map(({ id, label, icon: Icon }) => (
+                                    <button
+                                        key={id}
+                                        onClick={() => handleTabChange(id)}
+                                        className={`flex items-center space-x-3 w-full px-4 py-3 font-medium transition-all duration-200 ${
+                                            activeTab === id
+                                                ? 'text-purple-600 bg-purple-50'
+                                                : 'text-slate-600 hover:text-slate-800 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                        <span>{label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mobile Tab Indicator */}
+                    <div className="md:hidden bg-slate-50 border-b border-slate-200 px-4 py-3">
+                        <div className="flex items-center space-x-2">
+                            {tabs.find(tab => tab.id === activeTab) && (
+                                <>
+                                    {React.createElement(tabs.find(tab => tab.id === activeTab)!.icon, {
+                                        className: "w-5 h-5 text-purple-600"
+                                    })}
+                                    <span className="font-medium text-slate-800">
+                                        {tabs.find(tab => tab.id === activeTab)!.label}
+                                    </span>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="p-4 sm:p-6 lg:p-8">
                         {/* Profile Tab */}
                         {activeTab === 'profile' && (
                             <>
-                                <div className="space-y-8">
-                                    <div className="flex items-center justify-between">
-                                        <h2 className="text-2xl font-bold text-slate-800">Personal Information</h2>
+                                <div className="space-y-6 sm:space-y-8">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                                        <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Personal Information</h2>
                                         {!isEditingProfile && (
                                             <button
                                                 onClick={() => setIsEditingProfile(true)}
-                                                className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                                                className="flex items-center justify-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 w-full sm:w-auto"
                                             >
                                                 <Edit3 className="w-4 h-4" />
                                                 <span>Edit Profile</span>
@@ -376,7 +433,7 @@ const UserProfileClient: React.FC = () => {
                                     </div>
 
                                     {isEditingProfile ? (
-                                        <form onSubmit={handleProfileUpdate} className="space-y-6">
+                                        <form onSubmit={handleProfileUpdate} className="space-y-4 sm:space-y-6">
                                             <div>
                                                 <label htmlFor="firstName" className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
                                                 <input
@@ -422,11 +479,11 @@ const UserProfileClient: React.FC = () => {
                                                 />
                                                 <p className="text-sm text-slate-500 mt-1">Email cannot be changed here</p>
                                             </div>
-                                            <div className="flex space-x-4 pt-4">
+                                            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
                                                 <button
                                                     type="submit"
                                                     disabled={savingProfile}
-                                                    className="flex items-center space-x-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50"
+                                                    className="flex items-center justify-center space-x-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 disabled:opacity-50 w-full sm:w-auto"
                                                 >
                                                     {savingProfile ? (
                                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -438,7 +495,7 @@ const UserProfileClient: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsEditingProfile(false)}
-                                                    className="flex items-center space-x-2 bg-slate-200 text-slate-700 px-6 py-3 rounded-lg hover:bg-slate-300 transition-colors duration-200"
+                                                    className="flex items-center justify-center space-x-2 bg-slate-200 text-slate-700 px-6 py-3 rounded-lg hover:bg-slate-300 transition-colors duration-200 w-full sm:w-auto"
                                                 >
                                                     <X className="w-4 h-4" />
                                                     <span>Cancel</span>
@@ -446,36 +503,36 @@ const UserProfileClient: React.FC = () => {
                                             </div>
                                         </form>
                                     ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <div className="space-y-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                                            <div className="space-y-4 sm:space-y-6">
                                                 <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg">
-                                                    <User className="w-5 h-5 text-purple-600" />
-                                                    <div>
+                                                    <User className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                                    <div className="min-w-0 flex-1">
                                                         <p className="text-sm text-slate-600">Full Name</p>
-                                                        <p className="font-medium text-slate-800">
+                                                        <p className="font-medium text-slate-800 truncate">
                                                             {userProfile.firstName} {userProfile.lastName || ''}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg">
-                                                    <Mail className="w-5 h-5 text-purple-600" />
-                                                    <div>
+                                                    <Mail className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                                    <div className="min-w-0 flex-1">
                                                         <p className="text-sm text-slate-600">Email Address</p>
-                                                        <p className="font-medium text-slate-800">{userProfile.email}</p>
+                                                        <p className="font-medium text-slate-800 truncate">{userProfile.email}</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-6">
+                                            <div className="space-y-4 sm:space-y-6">
                                                 <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg">
-                                                    <Phone className="w-5 h-5 text-purple-600" />
-                                                    <div>
+                                                    <Phone className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                                    <div className="min-w-0 flex-1">
                                                         <p className="text-sm text-slate-600">Phone Number</p>
-                                                        <p className="font-medium text-slate-800">{userProfile.phone || 'Not provided'}</p>
+                                                        <p className="font-medium text-slate-800 truncate">{userProfile.phone || 'Not provided'}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg">
-                                                    <Shield className="w-5 h-5 text-purple-600" />
-                                                    <div>
+                                                    <Shield className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                                    <div className="min-w-0 flex-1">
                                                         <p className="text-sm text-slate-600">Account Status</p>
                                                         <p className="font-medium text-green-600">Verified</p>
                                                     </div>
@@ -490,11 +547,11 @@ const UserProfileClient: React.FC = () => {
                         {/* Addresses Tab */}
                         {activeTab === 'addresses' && (
                             <div className="space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <h2 className="text-2xl font-bold text-slate-800">Shipping Addresses</h2>
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                                    <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Shipping Addresses</h2>
                                     <button
                                         onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
-                                        className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                                        className="flex items-center justify-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors duration-200 w-full sm:w-auto"
                                     >
                                         <Plus className="w-4 h-4" />
                                         <span>Add Address</span>
@@ -502,53 +559,53 @@ const UserProfileClient: React.FC = () => {
                                 </div>
 
                                 {userProfile.shippingAddresses.length === 0 ? (
-                                    <div className="text-center py-12">
-                                        <MapPin className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                                    <div className="text-center py-8 sm:py-12">
+                                        <MapPin className="w-12 h-12 sm:w-16 sm:h-16 text-slate-300 mx-auto mb-4" />
                                         <h3 className="text-lg font-medium text-slate-800 mb-2">No addresses found</h3>
-                                        <p className="text-slate-600 mb-6">Add your first shipping address to get started</p>
+                                        <p className="text-slate-600 mb-6 px-4">Add your first shipping address to get started</p>
                                         <button
                                             onClick={() => { setEditingAddress(null); setShowAddressModal(true); }}
-                                            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200"
+                                            className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors duration-200 w-full sm:w-auto"
                                         >
                                             Add Address
                                         </button>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                                         {userProfile.shippingAddresses.map((address, index) => (
                                             <div
                                                 key={address._id}
-                                                className="p-6 bg-slate-50 rounded-lg border-2 border-transparent hover:border-purple-200 transition-all duration-200"
+                                                className="p-4 sm:p-6 bg-slate-50 rounded-lg border-2 border-transparent hover:border-purple-200 transition-all duration-200"
                                             >
                                                 <div className="flex items-start justify-between mb-4">
-                                                    <div className="flex items-center space-x-2">
-                                                        <MapPin className="w-5 h-5 text-purple-600" />
-                                                        <h3 className="font-medium text-slate-800">
+                                                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                                        <MapPin className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                                        <h3 className="font-medium text-slate-800 truncate">
                                                             {address.addressName || `Address ${index + 1}`}
                                                         </h3>
                                                         {address.isDefault && (
-                                                            <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full">
+                                                            <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full flex-shrink-0">
                                                                 Default
                                                             </span>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <p className="text-slate-600 mb-4">
+                                                <p className="text-slate-600 mb-4 text-sm sm:text-base">
                                                     {address.street}<br />
                                                     {address.city}, {address.state} {address.zipCode}<br />
                                                     {address.country}
                                                 </p>
-                                                <div className="flex space-x-3">
+                                                <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
                                                     <button
                                                         onClick={() => { setEditingAddress(address); setShowAddressModal(true); }}
-                                                        className="flex items-center space-x-1 text-purple-600 hover:text-purple-700 text-sm font-medium"
+                                                        className="flex items-center justify-center space-x-1 text-purple-600 hover:text-purple-700 text-sm font-medium bg-purple-50 px-3 py-2 rounded-md hover:bg-purple-100 transition-colors w-full sm:w-auto"
                                                     >
                                                         <Edit3 className="w-4 h-4" />
                                                         <span>Edit</span>
                                                     </button>
                                                     <button
                                                         onClick={() => address._id && handleDeleteAddress(address._id)}
-                                                        className="flex items-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium"
+                                                        className="flex items-center justify-center space-x-1 text-red-600 hover:text-red-700 text-sm font-medium bg-red-50 px-3 py-2 rounded-md hover:bg-red-100 transition-colors w-full sm:w-auto"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                         <span>Delete</span>
@@ -562,7 +619,7 @@ const UserProfileClient: React.FC = () => {
                         )}
 
                         {/* Orders Tab */}
-                        {activeTab === 'orders' && (
+                         {activeTab === 'orders' && (
                             <div className="space-y-6">
                                 <h2 className="text-2xl font-bold text-slate-800">Order History</h2>
 
