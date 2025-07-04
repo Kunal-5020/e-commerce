@@ -18,6 +18,7 @@ import { auth, googleProvider } from './firebase';
 const sendTokenToBackend = async (user: User) => {
   if (!user) return;
   const idToken = await getIdToken(user);
+  // console.log('id token',idToken)
   // Ensure this matches your backend server address
   const BACKEND_URL = process.env.NEXT_PUBLIC_SERVER_URL;
 
@@ -33,10 +34,12 @@ const sendTokenToBackend = async (user: User) => {
     const data = await response.json();
 
     if (response.ok) {
-      console.log('Backend token verification successful:', data);
+      // console.log('Backend token verification successful:', data);
+      console.log('Backend token verification successful:');
       return { success: true, message: `Backend verified token for UID: ${data.uid}` };
     } else {
-      console.error('Backend token verification failed:', data);
+      // console.error('Backend token verification failed:', data);
+      console.error('Backend token verification failed:');
       return { success: false, message: `Backend verification failed: ${data.error}` };
     }
   } catch (error: any) {
