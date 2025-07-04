@@ -7,7 +7,7 @@ const serviceAccount = require('./firebase.json'); // Path to your downloaded se
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   projectId: serviceAccount.project_id,
-  // databaseURL: "https://e-commerce-3070e-default-rtdb.asia-southeast1.firebasedatabase.app"
+  databaseURL: "https://e-commerce-3070e-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
 
