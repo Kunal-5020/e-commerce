@@ -31,26 +31,7 @@ const HomePage: React.FC = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const router = useRouter();
 
-    useEffect(() => {
-        const fetchFeaturedProducts = async () => {
-            try {
-                const products: Product[] = await fetchWithAuth(`${BASE_API_URL}/products`);
-                setFeaturedProducts(products.slice(0, 4)); // Take first 4 as featured
-            } catch (error) {
-                console.error('Error fetching featured products:', error);
-            }
-        };
-        fetchFeaturedProducts();
-    }, []);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentSlide(prev => (prev + 1) % featuredProducts.length);
-        }, 5000); // Change slide every 5 seconds
-        return () => clearInterval(interval);
-    }, [featuredProducts]);
-
-     const heroSlides = [
+         const heroSlides = [
         {
             title: "Discover Your Style",
             subtitle: "Curated fashion and lifestyle products",
@@ -68,6 +49,35 @@ const HomePage: React.FC = () => {
         }
     ];
 
+    useEffect(() => {
+        const fetchFeaturedProducts = async () => {
+            try {
+                const products: Product[] = await fetchWithAuth(`${BASE_API_URL}/products`);
+                // Filter for featured products if 'isFeatured' exists, otherwise just take first 4
+                const filtered = products.filter(p => p.isFeatured).slice(0, 4);
+                if (filtered.length > 0) {
+                    setFeaturedProducts(filtered);
+                } else {
+                    // Fallback: if no featured products, take the first 4 available
+                    setFeaturedProducts(products.slice(0, 4));
+                }
+            } catch (error) {
+                console.error('Error fetching featured products:', error);
+            }
+        };
+        fetchFeaturedProducts();
+    }, []);
+
+    useEffect(() => {
+        // Only start the interval if there are hero slides to cycle through
+        if (heroSlides.length === 0) return;
+
+        const interval = setInterval(() => {
+            // Corrected: Use heroSlides.length for the carousel logic
+            setCurrentSlide(prev => (prev + 1) % heroSlides.length);
+        }, 5000); // Change slide every 5 seconds
+        return () => clearInterval(interval);
+    }, [heroSlides]);
 
     return (
        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
