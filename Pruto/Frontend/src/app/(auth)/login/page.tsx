@@ -16,7 +16,7 @@ import { FcGoogle } from 'react-icons/fc'; // Import Google icon from react-icon
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Import Firebase functions from the correct relative paths (now .ts)
-import { loginWithEmail, loginWithGoogle, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
+import { useAuth } from '../../../lib/authContext';
 import { setupRecaptcha, sendOtp, verifyOtp, resetRecaptcha } from '../../../components/firebase/firebasePhoneAuth';
 
 // Import shadcn/ui components from the correct relative paths
@@ -48,6 +48,7 @@ export default function LoginPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [recaptchaContainerId] = useState<string>('recaptcha-container-login'); // Unique ID for recaptcha
   const [showPassword, setShowPassword] = useState(false);
+  const { loginWithEmail, loginWithGoogle, onAuthStateChanged } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),

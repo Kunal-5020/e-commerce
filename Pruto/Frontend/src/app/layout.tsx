@@ -24,8 +24,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // const pathname = usePathname();
-  // const hideNavAndFooter = pathname === '/checkout';
 
   return (
     <html lang="en">
@@ -33,7 +31,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
       <Providers>
-          {/* The children prop of RootLayout will be passed to Providers */}
           {children}
       </Providers>
       </body>

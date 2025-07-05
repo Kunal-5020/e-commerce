@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'; // Use useRouter from next/navigati
 import { useAuth } from '../lib/authContext';
 import { useCart } from '../lib/cartContext';
 import toast from 'react-hot-toast'; // Import toast
-import { signOut } from './firebase/firebaseAuth';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ShoppingCart, User, Menu, X, Home, Smartphone, Phone, Info, Heart, Settings, Package, LogOut, ChevronDown } from 'lucide-react';
@@ -29,10 +28,11 @@ interface DropdownItemProps {
 
 
 const Navbar: React.FC = () => {
-    const { currentUser, isAdmin } = useAuth();
+    const { firebaseUser, mongoUser, signOut, loading } = useAuth();
     const { cartItems } = useCart();
     const router = useRouter();
     const cartItemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+    const isAdmin = mongoUser?.isAdmin || false;
     
     // State for dropdowns and mobile menu
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
@@ -183,7 +183,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, 
                             <NavLink href="/products" icon={<Smartphone className="w-4 h-4" />}>Products</NavLink>
                             <NavLink href="/contact" icon={<Phone className="w-4 h-4" />}>Contact</NavLink>
                             <NavLink href="/about" icon={<Info className="w-4 h-4" />}>About</NavLink>
-                            {currentUser && (
+                            {firebaseUser && (
                                 <>
                                     <NavLink href="/wishlist" icon={<Heart className="w-4 h-4" />}>Wishlist</NavLink>
                                     {isAdmin && (
@@ -213,7 +213,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, 
                             </div>
                             
                             {/* User Profile or Login */}
-                            {currentUser ? (
+                            {firebaseUser ? (
                                 <div className="relative" ref={userDropdownRef}>
                                     <button
                                         onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
@@ -230,7 +230,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, 
                                                 Welcome back
                                             </p>
                                             <p className="text-xs text-gray-500">
-                                                {currentUser.email?.split('@')[0]}
+                                                {firebaseUser.email?.split('@')[0]}
                                             </p>
                                         </div>
                                         <ChevronDown className={`w-4 h-4 transition-all duration-300 ${isUserDropdownOpen ? 'rotate-180 text-purple-600' : 'group-hover:text-purple-600'}`} />
@@ -247,7 +247,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, 
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-gray-900">
-                                                            {currentUser.email}
+                                                            {firebaseUser.email}
                                                         </p>
                                                         <p className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full inline-block mt-1">
                                                             ✨ Premium Member
@@ -397,7 +397,7 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ href, children, onClick, 
                                     About Us
                                 </MobileNavLink>
                                 
-                                {currentUser && (
+                                {firebaseUser && (
                                     <>
                                         <motion.div 
                                             initial={{ opacity: 0, x: 20 }}

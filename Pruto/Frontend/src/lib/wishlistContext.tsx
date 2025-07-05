@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { useAuth } from './authContext'; // Assuming useAuth provides currentUser
+import { useAuth } from './authContext'; // Assuming useAuth provides mongoUser
 import { fetchWithAuth, BASE_API_URL } from './api';
 import toast from 'react-hot-toast';
 
@@ -41,12 +41,12 @@ interface WishlistProviderProps {
 }
 
 export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) => {
-    const { currentUser, loading: authLoading } = useAuth();
+    const { mongoUser, loading: authLoading } = useAuth();
     const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
     const fetchWishlist = useCallback(async () => {
-        if (!currentUser) {
+        if (!mongoUser) {
             setWishlistItems([]);
             setLoading(false);
             return;
@@ -63,7 +63,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
         } finally {
             setLoading(false);
         }
-    }, [currentUser]);
+    }, [mongoUser]);
 
     useEffect(() => {
         if (!authLoading) { // Only fetch wishlist once auth status is determined
@@ -72,7 +72,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }, [authLoading, fetchWishlist]);
 
     const addToWishlist = async (productId: string) => {
-        if (!currentUser) {
+        if (!mongoUser) {
             toast.error('Please log in to add items to your wishlist.');
             return;
         }
@@ -89,7 +89,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     };
 
     const removeFromWishlist = async (productId: string) => {
-        if (!currentUser) {
+        if (!mongoUser) {
             toast.error('Please log in to manage your wishlist.');
             return;
         }

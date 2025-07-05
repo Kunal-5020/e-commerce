@@ -96,8 +96,8 @@ interface Order {
 }
 
 const UserProfileClient: React.FC = () => {
-    // Destructure currentUser and authLoading from useAuth
-    const { currentUser, loading: authLoading } = useAuth();
+    // Destructure mongoUser and authLoading from useAuth
+    const { mongoUser, loading: authLoading } = useAuth();
     const { wishlistItems, removeFromWishlist, fetchWishlist } = useWishlist();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -124,8 +124,8 @@ const UserProfileClient: React.FC = () => {
             return;
         }
 
-        if (!currentUser) {
-            // If auth is done loading and no current user, redirect to login
+        if (!mongoUser) {
+            // If auth is done loading and no mongo user, redirect to login
             router.push('/login');
             return;
         }
@@ -145,10 +145,10 @@ const UserProfileClient: React.FC = () => {
         } finally {
             setLoadingProfileData(false); // Done loading profile data
         }
-    }, [currentUser, router, authLoading]); // Added authLoading to dependencies
+    }, [mongoUser, router, authLoading]); // Added authLoading to dependencies
 
     const fetchUserOrders = useCallback(async () => {
-        if (authLoading || !currentUser) return; // Wait for auth, ensure user is logged in
+        if (authLoading || !mongoUser) return; // Wait for auth, ensure user is logged in
         try {
             const data: Order[] = await fetchWithAuth(`${BASE_API_URL}/orders`);
             setUserOrders(data);
@@ -156,7 +156,7 @@ const UserProfileClient: React.FC = () => {
             console.error('Error fetching user orders:', error);
             toast.error(`Failed to load orders: ${error.message}`);
         }
-    }, [currentUser, authLoading]); // Added authLoading to dependencies
+    }, [mongoUser, authLoading]); // Added authLoading to dependencies
 
     useEffect(() => {
         // Trigger fetching data only when authentication state is resolved
@@ -295,8 +295,8 @@ const UserProfileClient: React.FC = () => {
         );
     }
 
-    // If auth is done loading and no currentUser, redirect to login
-    if (!currentUser) {
+    // If auth is done loading and no mongoUser, redirect to login
+    if (!mongoUser) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">
                 <div className="text-center p-6 sm:p-8 bg-white rounded-2xl shadow-xl max-w-md w-full">
@@ -314,7 +314,7 @@ const UserProfileClient: React.FC = () => {
         );
     }
 
-    // If currentUser exists but userProfile is null (meaning fetchUserProfile failed or returned null)
+    // If mongoUser exists but userProfile is null (meaning fetchUserProfile failed or returned null)
     if (!userProfile) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">

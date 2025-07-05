@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 // Import Firebase functions from the correct relative paths (now .ts)
-import { signupWithEmail, loginWithGoogle, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
+import { useAuth } from '../../../lib/authContext';
 import { setupRecaptcha, sendOtp, verifyOtp, resetRecaptcha } from '../../../components/firebase/firebasePhoneAuth';
 
 // Import shadcn/ui components from the correct relative paths
@@ -42,6 +42,7 @@ const signupSchema = z.object({
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
+  const { signupWithEmail, loginWithGoogle, onAuthStateChanged } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email'); // 'email', 'phone'
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);

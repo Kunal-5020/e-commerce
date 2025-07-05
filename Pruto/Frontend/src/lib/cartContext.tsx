@@ -47,13 +47,13 @@ interface CartProviderProps {
 }
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-    const { currentUser } = useAuth();
+    const { mongoUser } = useAuth();
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [cartLoading, setCartLoading] = useState<boolean>(true);
     let toastShown = false;
 
     const fetchCart = useCallback(async () => {
-        if (!currentUser) {
+        if (!mongoUser) {
             setCartItems([]);
             setCartLoading(false);
             return;
@@ -75,14 +75,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         } finally {
             setCartLoading(false);
         }
-    }, [currentUser]);
+    }, [mongoUser]);
 
     useEffect(() => {
         fetchCart();
     }, [fetchCart]);
 
     const addToCart = async (productId: string, quantity: number, selectedSize: string | null = null, selectedColor: { name: string; hexCode: string } | null = null) => {
-        if (!currentUser) {
+        if (!mongoUser) {
             toast.error('Please log in to add items to your cart.');
             return;
         }
@@ -100,7 +100,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     };
 
     const updateCartItemQuantity = async (productId: string, quantity: number, selectedSize: string | null = null, selectedColor: { name: string; hexCode: string } | null = null) => {
-        if (!currentUser) return;
+        if (!mongoUser) return;
         try {
             const data = await fetchWithAuth(`${BASE_API_URL}/cart/update/${productId}`, {
                 method: 'PUT',
@@ -115,7 +115,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     };
 
     const removeFromCart = async (productId: string, selectedSize: string | null = null, selectedColor: { name: string; hexCode: string } | null = null) => {
-        if (!currentUser) return;
+        if (!mongoUser) return;
         try {
             const data = await fetchWithAuth(`${BASE_API_URL}/cart/remove/${productId}`, {
                 method: 'DELETE',
@@ -130,7 +130,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     };
 
     const clearCart = async () => {
-        if (!currentUser) return;
+        if (!mongoUser) return;
         setCartItems([]); // Clear locally immediately
         // If your backend has a specific clear cart endpoint, call it here
         // e.g., await fetchWithAuth(`${BASE_API_URL}/cart/clear`, { method: 'DELETE' });

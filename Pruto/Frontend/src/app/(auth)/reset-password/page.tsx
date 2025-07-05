@@ -13,7 +13,7 @@ import { Mail, ArrowLeft, Shield, KeyRound, CheckCircle, AlertCircle } from 'luc
 import { motion } from 'framer-motion';
 
 // Import Firebase functions from the correct relative paths (now .ts)
-import { resetPassword, onAuthStateChanged } from '../../../components/firebase/firebaseAuth';
+import { useAuth } from '../../../lib/authContext';
 
 // Import shadcn/ui components from the correct relative paths
 import { Button } from '../../../components/ui/button';
@@ -26,6 +26,7 @@ const resetPasswordSchema = z.object({
 type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
+  const { resetPassword, onAuthStateChanged } = useAuth();
   const router = useRouter();
   const [emailSent, setEmailSent] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');

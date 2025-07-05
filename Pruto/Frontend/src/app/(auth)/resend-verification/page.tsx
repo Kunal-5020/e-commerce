@@ -7,15 +7,18 @@ import { toast } from 'react-hot-toast';
 import { Mail, ArrowLeft, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 // Import Firebase functions
-import { resendVerification, onAuthStateChanged, User } from '../../../components/firebase/firebaseAuth';
+// import { resendVerification, onAuthStateChanged, User } from '../../../components/firebase/firebaseAuth';
+import { useAuth } from '../../../lib/authContext';
 // Assume shadcn/ui components are imported and configured
 import { Button } from '../../../components/ui/button';
 
 export default function ResendVerificationPage() {
+  const { firebaseUser, resendVerification, onAuthStateChanged } = useAuth();
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<typeof firebaseUser | null>(null);
   const [isSending, setIsSending] = useState(false);
   let toastShown = false;
+  
 
   // Listen for auth state changes
   useEffect(() => {

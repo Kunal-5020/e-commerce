@@ -27,7 +27,7 @@ interface Product {
 }
 
 const WishlistPage: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { mongoUser } = useAuth();
     const { addToCart } = useCart();
     const [wishlistItems, setWishlistItems] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -37,7 +37,7 @@ const WishlistPage: React.FC = () => {
     let toastShown = false;
 
     const fetchWishlist = useCallback(async () => {
-        if (!currentUser) {
+        if (!mongoUser) {
             router.push('/login');
             return;
         }
@@ -54,14 +54,14 @@ const WishlistPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentUser, router]);
+    }, [mongoUser, router]);
 
     useEffect(() => {
         fetchWishlist();
     }, [fetchWishlist]);
 
     const handleRemoveFromWishlist = async (productId: string) => {
-        if (!currentUser) return;
+        if (!mongoUser) return;
         setRemovingId(productId);
         try {
             await fetchWithAuth(`${BASE_API_URL}/user/wishlist/${productId}`, {
@@ -103,7 +103,7 @@ const WishlistPage: React.FC = () => {
         );
     }
 
-    if (!currentUser) {
+    if (!mongoUser) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
                 <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">

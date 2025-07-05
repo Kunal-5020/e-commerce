@@ -5,6 +5,6 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.post('/verify-id-token', authController.verifyFirebaseIdToken);
+router.post('/login', authController.verifyFirebaseIdToken);
 
 module.exports = router;
