@@ -29,8 +29,8 @@ interface MongoUser {
   _id: string;
   firebaseUid: string;
   email: string;
-  name?: string;
-  isAdmin?: boolean;
+  firstName?: string;
+  role?: string;
   // Add other user fields you expect from your backend
 }
 
@@ -58,6 +58,9 @@ interface AuthContextType {
 
   // Add onAuthStateChanged to the context type
   onAuthStateChanged: (callback: (user: User | null) => void) => (() => void);
+
+  // Add isAdmin to the context type
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -264,6 +267,8 @@ const onAuthStateChanged = (callback: (user: User | null) => void) => {
   return firebaseOnAuthStateChanged(auth, callback);
 };
 
+const isAdmin = !!(mongoUser && mongoUser.role === 'admin');
+
   const value: AuthContextType = {
     firebaseUser,
     mongoUser,
@@ -278,6 +283,7 @@ const onAuthStateChanged = (callback: (user: User | null) => void) => {
     resendVerification,
     authenticatedFetch,
     onAuthStateChanged,
+    isAdmin,
   };
 
   return (

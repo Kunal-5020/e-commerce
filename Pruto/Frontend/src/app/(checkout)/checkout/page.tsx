@@ -32,7 +32,7 @@ interface UserProfile {
 }
 
 const CheckoutPage: React.FC = () => {
-    const { currentUser } = useAuth();
+    const { mongoUser } = useAuth();
     const { cartItems, cartTotal, clearCart, fetchCart } = useCart();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +44,7 @@ const CheckoutPage: React.FC = () => {
     const router = useRouter();
 
     const fetchUserProfile = useCallback(async () => {
-        if (!currentUser) {
+        if (!mongoUser) {
             router.push('/login');
             return;
         }
@@ -64,7 +64,7 @@ const CheckoutPage: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentUser, router]);
+    }, [mongoUser, router]);
 
     useEffect(() => {
         fetchUserProfile();
@@ -79,7 +79,7 @@ const CheckoutPage: React.FC = () => {
     };
 
     const handlePlaceOrder = async () => {
-        if (!currentUser) {
+        if (!mongoUser) {
             toast.error('Please log in to place an order.');
             return;
         }

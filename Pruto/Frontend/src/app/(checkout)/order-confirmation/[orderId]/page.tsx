@@ -46,7 +46,7 @@ const OrderConfirmationPage: React.FC = () => {
     const router = useRouter();
     const params = useParams();
     const orderId = params.orderId as string; // Get orderId from URL params
-    const { currentUser } = useAuth();
+    const { mongoUser } = useAuth();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [animateIn, setAnimateIn] = useState<boolean>(false);
@@ -58,7 +58,7 @@ const OrderConfirmationPage: React.FC = () => {
                 setLoading(false);
                 return;
             }
-            if (!currentUser) { // Ensure user is logged in to fetch their order
+            if (!mongoUser) { // Ensure user is logged in to fetch their order
                 router.push('/login');
                 return;
             }
@@ -78,7 +78,7 @@ const OrderConfirmationPage: React.FC = () => {
             }
         };
         fetchOrder();
-    }, [orderId, currentUser, router]);
+    }, [orderId, mongoUser, router]);
 
     if (loading) {
         return (
