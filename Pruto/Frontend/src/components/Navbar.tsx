@@ -28,11 +28,10 @@ interface DropdownItemProps {
 
 
 const Navbar: React.FC = () => {
-    const { firebaseUser, mongoUser, signOut, loading } = useAuth();
+    const { firebaseUser, signOut, loading, isAdmin } = useAuth();
     const { cartItems } = useCart();
     const router = useRouter();
     const cartItemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-    const isAdmin = mongoUser?.isAdmin || false;
     
     // State for dropdowns and mobile menu
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
