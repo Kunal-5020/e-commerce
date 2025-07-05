@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { Mail, ArrowLeft, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 // Import Firebase functions
-// import { resendVerification, onAuthStateChanged, User } from '../../../components/firebase/firebaseAuth';
+
 import { useAuth } from '../../../lib/authContext';
 // Assume shadcn/ui components are imported and configured
 import { Button } from '../../../components/ui/button';

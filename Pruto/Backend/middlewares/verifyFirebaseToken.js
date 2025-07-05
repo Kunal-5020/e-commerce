@@ -3,8 +3,9 @@ const admin = require('../firebase/firebaseAdmin');
 
 module.exports = async (req, res, next) => {
   const idToken = req.headers.authorization?.split('Bearer ')[1];
+  console.log("it was hit");
 
-  if (!idToken) return res.status(401).json({ error: 'No token provided' });
+  if (!idToken) return res.status(403).json({ error: 'No token provided' });
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
@@ -15,7 +16,7 @@ module.exports = async (req, res, next) => {
     };
     next();
   } catch (error) {
-    console.error('Firebase token error:', error.message);
+    console.log('Firebase token error:', error.message);
     res.status(401).json({ error: 'Invalid or expired token' });
   }
 };

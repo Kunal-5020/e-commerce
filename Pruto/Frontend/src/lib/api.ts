@@ -17,6 +17,7 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
     if (user) {
         idToken = await user.getIdToken();
     }
+    // console.log(idToken);
 
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
