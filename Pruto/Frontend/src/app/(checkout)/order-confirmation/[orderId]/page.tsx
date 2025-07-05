@@ -261,7 +261,7 @@ const OrderConfirmationPage: React.FC = () => {
                         {/* Action Buttons */}
                         <div className={`flex flex-col sm:flex-row gap-4 pt-6 transform transition-all duration-700 delay-500 ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
                             <button
-                                onClick={() => router.push('/user-profile?tab=orders')}
+                                onClick={() => router.push('/profile?tab=orders')}
                                 className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

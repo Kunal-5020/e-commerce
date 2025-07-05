@@ -13,7 +13,7 @@ exports.verifyFirebaseIdToken = async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const firebaseUid = decodedToken.uid;
 
-    // Step 2: Get full user info from Firebase
+    // Step 2: Get full user info from Firebase (optional but good for initial user data)
     const firebaseUser = await admin.auth().getUser(firebaseUid);
 
     // Step 3: Check if user exists in MongoDB
@@ -35,22 +35,29 @@ exports.verifyFirebaseIdToken = async (req, res) => {
         lastName,
         profilePicture: firebaseUser.photoURL || '',
         phoneNumber: firebaseUser.phoneNumber || '',
+        // Add any other default fields for a new user, e.g., an empty cart
+        cart: [], // Initialize cart as empty array for new users
       });
-
-      return res.status(201).json({
-        message: 'User created from Firebase',
-        user,
-      });
+      // Do NOT send a separate 201 response here immediately.
+      // We want to consistently return the `user` object in the final step.
     }
 
-    // Step 5: Return existing user
+    // Step 5: Return the (existing or newly created) user
+    // Always return a 200 OK after successfully processing the user
     return res.status(200).json({
-      message: 'User exists and token is valid',
-      user,
+      message: user ? 'User exists or created successfully' : 'User could not be processed',
+      user: user, // Always return the user object
     });
 
   } catch (error) {
     console.error('Error verifying Firebase ID Token or handling user:', error.message);
-    res.status(401).json({ error: 'Unauthorized: Invalid or expired ID Token.' });
+    // Be more specific for token errors vs. database errors if needed
+    if (error.code === 'auth/id-token-expired') {
+        res.status(401).json({ error: 'Unauthorized: ID Token has expired. Please re-authenticate.' });
+    } else if (error.code === 'auth/argument-error') {
+        res.status(401).json({ error: 'Unauthorized: Invalid ID Token.' });
+    } else {
+        res.status(500).json({ error: `Internal Server Error: ${error.message}` });
+    }
   }
 };
