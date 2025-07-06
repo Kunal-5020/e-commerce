@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation'; // Use useParams for dynamic routes
-import { fetchWithAuth, BASE_API_URL } from '../../../../lib/api';
+// import { fetchWithAuth, BASE_API_URL } from '../../../../lib/api';
+import { fetchPublic, BASE_API_URL } from '@/lib/publicApi';
 import { useCart } from '../../../../lib/cartContext';
 import toast from 'react-hot-toast'; // Import toast
 
@@ -44,7 +45,7 @@ const ProductDetailPage: React.FC = () => {
             if (!productId) return;
             setLoading(true);
             try {
-                const data: Product = await fetchWithAuth(`${BASE_API_URL}/products/${productId}`);
+                const data: Product = await fetchPublic(`${BASE_API_URL}/products/${productId}`);
                 setProduct(data);
                 setMainImage(data.images && data.images.length > 0 ? data.images[0].url : `https://placehold.co/600x400/F0F4F8/333333?text=No+Image`);
                 if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);

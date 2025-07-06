@@ -1,63 +1,50 @@
-const admin = require('../firebase/firebaseAdmin');
 const User = require('../models/User'); // Adjust path to your User model
 
-exports.verifyFirebaseIdToken = async (req, res) => {
-  const idToken = req.body.idToken;
+exports.handleDirectUserSync = async (req, res) => {
+  // Expecting firebaseUid and email directly from the frontend
+  const { firebaseUid, email } = req.body;
 
-  if (!idToken) {
-    return res.status(400).json({ error: 'ID Token is required.' });
+  if (!firebaseUid || !email) {
+    return res.status(400).json({ error: 'Firebase UID and email are required.' });
   }
 
   try {
-    // Step 1: Verify ID token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUid = decodedToken.uid;
-
-    // Step 2: Get full user info from Firebase (optional but good for initial user data)
-    const firebaseUser = await admin.auth().getUser(firebaseUid);
-
-    // Step 3: Check if user exists in MongoDB
+    // Step 1: Check if user exists in MongoDB
     let user = await User.findOne({ firebaseUid });
 
-    // Step 4: Create user if not exists
+    // Step 2: Create user if not exists
     if (!user) {
-      const nameParts = firebaseUser.displayName
-        ? firebaseUser.displayName.split(' ')
-        : [];
-
-      const firstName = nameParts[0] || 'User';
-      const lastName = nameParts.slice(1).join(' ') || '';
+      // Since we are not using Firebase Admin SDK or ID Token claims,
+      // we won't have displayName, photoURL, phoneNumber directly.
+      // You can set defaults or leave them empty.
+      const firstName = 'User'; // Default
+      const lastName = '';      // Default
 
       user = await User.create({
         firebaseUid,
-        email: firebaseUser.email || '',
+        email,
         firstName,
         lastName,
-        profilePicture: firebaseUser.photoURL || '',
-        phoneNumber: firebaseUser.phoneNumber || '',
-        // Add any other default fields for a new user, e.g., an empty cart
-        cart: [], // Initialize cart as empty array for new users
+        profilePicture: '', // No picture from this method
+        phoneNumber: '',    // No phone number from this method
+        cart: [],
       });
-      // Do NOT send a separate 201 response here immediately.
-      // We want to consistently return the `user` object in the final step.
+    } else {
+      // Optional: Update email if it changed (based on the directly sent email)
+      if (user.email !== email) {
+        user.email = email;
+        await user.save();
+      }
     }
 
-    // Step 5: Return the (existing or newly created) user
-    // Always return a 200 OK after successfully processing the user
+    // Step 3: Return the (existing or newly created) user
     return res.status(200).json({
       message: user ? 'User exists or created successfully' : 'User could not be processed',
-      user: user, // Always return the user object
+      user: user,
     });
 
   } catch (error) {
-    console.error('Error verifying Firebase ID Token or handling user:', error.message);
-    // Be more specific for token errors vs. database errors if needed
-    if (error.code === 'auth/id-token-expired') {
-        res.status(401).json({ error: 'Unauthorized: ID Token has expired. Please re-authenticate.' });
-    } else if (error.code === 'auth/argument-error') {
-        res.status(401).json({ error: 'Unauthorized: Invalid ID Token.' });
-    } else {
-        res.status(500).json({ error: `Internal Server Error: ${error.message}` });
-    }
+    console.error('Error handling direct user sync:', error.message);
+    return res.status(500).json({ error: `Internal Server Error: ${error.message}` });
   }
 };

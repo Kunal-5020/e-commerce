@@ -1,33 +1,28 @@
 // backend/routes/admin.js
 const express = require('express');
 const router = express.Router();
+const admin = require('firebase-admin');
 const User = require('../models/User'); // Your Mongoose User model
 const Product = require('../models/Product'); // Assuming you have a Product model
 
-const verifySimpleUser = require('../middlewares/verifySimpleUser');
-// Make sure this path is correct relative to admin.js
-router.use(verifySimpleUser);
-
 // Middleware to verify Firebase ID Token and check for admin role
 const verifyAdmin = async (req, res, next) => {
-    // const header = req.headers.authorization;
-    // if (!header || !header.startsWith('Bearer ')) {
-    //     return res.status(401).json({ message: 'Authorization header missing or malformed' });
-    // }
+    const header = req.headers.authorization;
+    if (!header) {
+        return res.status(401).json({ message: 'Authorization header missing' });
+    }
 
-    // const idToken = header.split(' ')[1];
-    // if (!idToken) {
-    //     return res.status(401).json({ message: 'ID Token missing from header' });
-    // }
+    const token = header.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token missing' });
+    }
 
     try {
-        // Use your custom verification function here
-        // const decodedToken = await verifyFirebaseIdTokenCustom(idToken);
-        // req.user = decodedToken; // Attach decoded token to request (contains uid, email, etc.)
-        const firebaseUid = req.headers['x-firebase-uid'] || req.body.firebaseUid || req.query.firebaseUid;
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        req.user = decodedToken; // Attach decoded token to request
 
         // Now, fetch the user from MongoDB to check their role
-        const userProfile = await User.findOne({ firebaseUid });
+        const userProfile = await User.findOne({ firebaseUid: req.user.uid });
 
         if (!userProfile || userProfile.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied: Not an administrator' });
@@ -35,19 +30,13 @@ const verifyAdmin = async (req, res, next) => {
         req.userProfile = userProfile; // Attach the full user profile from MongoDB
         next();
     } catch (error) {
-        console.error('Error verifying Firebase ID token or checking admin role:', error.message);
-        // Provide more specific error messages based on the verification outcome
-        let statusCode = 403; // Default to Forbidden
-        if (error.message.includes('ID Token has expired')) {
-            statusCode = 401; // Unauthorized for expired token
-        } else if (error.message.includes('Invalid ID Token')) {
-            statusCode = 401; // Unauthorized for invalid token
-        }
-        return res.status(statusCode).json({ message: 'Authentication failed: ' + error.message });
+        console.error('Error verifying Firebase ID token or checking admin role:', error);
+        return res.status(403).json({ message: 'Invalid or expired token, or not authorized' });
     }
 };
 
-// --- Admin Product Management Routes ---
+// --- Admin Product Management Routes (already assumed from previous interactions) ---
+// These routes should also use `verifyAdmin`
 router.post('/products', verifyAdmin, async (req, res) => {
     try {
         const newProduct = new Product(req.body);
@@ -91,6 +80,7 @@ router.delete('/products/:id', verifyAdmin, async (req, res) => {
 // GET all users (Admin only)
 router.get('/users', verifyAdmin, async (req, res) => {
     try {
+        // Exclude sensitive fields like shippingAddresses unless explicitly needed and secured
         const users = await User.find().select('-shippingAddresses -orders -wishlist -__v');
         res.status(200).json(users);
     } catch (error) {
@@ -143,18 +133,11 @@ router.delete('/users/:userId', verifyAdmin, async (req, res) => {
             return res.status(403).json({ message: 'Cannot delete your own admin account.' });
         }
 
-        // --- IMPORTANT: Removed Firebase Admin SDK deleteUser call ---
-        // If you're not using firebase-admin, you cannot delete from Firebase Auth directly here.
-        // You would need to handle this manually or accept that Firebase Auth users will persist.
-        // If you *do* want to delete from Firebase, you *must* initialize firebase-admin
-        // with a service account key somewhere in your backend (e.g., in your main app.js or config file)
-        // and ensure the `admin` object is accessible.
-        // For now, I'm assuming you still want to avoid the service account key.
-        // If you later decide to use firebase-admin for this, you'll need:
-        // const admin = require('firebase-admin'); // And proper initialization
+        // Optionally, also delete the user from Firebase Authentication
+        await admin.auth().deleteUser(user.firebaseUid);
 
         await User.findByIdAndDelete(userId);
-        res.status(200).json({ message: 'User deleted successfully from MongoDB.' });
+        res.status(200).json({ message: 'User deleted successfully from MongoDB and Firebase.' });
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ message: 'Server error deleting user', error: error.message });

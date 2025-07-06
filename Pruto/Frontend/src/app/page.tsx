@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchWithAuth, BASE_API_URL } from '../lib/api';
+// import { fetchWithAuth, BASE_API_URL } from '../lib/api';
+import { fetchPublic, BASE_API_URL } from '@/lib/publicApi';
 import ProductCard from '../components/ui/ProductCard';
 import CategoryCard from '../components/ui/CategoryCard'; // Assuming you'll create this
 import { ArrowRight, Sparkles, Users, Award, Zap, Star } from 'lucide-react';
@@ -52,7 +53,7 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchFeaturedProducts = async () => {
             try {
-                const products: Product[] = await fetchWithAuth(`${BASE_API_URL}/products`);
+                const products: Product[] = await fetchPublic(`${BASE_API_URL}/products`);
                 // Filter for featured products if 'isFeatured' exists, otherwise just take first 4
                 const filtered = products.filter(p => p.isFeatured).slice(0, 4);
                 if (filtered.length > 0) {

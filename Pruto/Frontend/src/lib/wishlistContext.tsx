@@ -81,7 +81,8 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
             await fetchWithAuth(`${BASE_API_URL}/user/wishlist/${productId}`, {
                 method: 'POST',
             });
-            await fetchWishlist(); // Re-fetch wishlist to update state
+            await fetchWishlist(); 
+            toast.success('Added to wishlist!');
         } catch (error: any) {
             console.error('Error adding to wishlist:', error);
             toast.error(`Failed to add to wishlist: ${error.message}`);
@@ -99,6 +100,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
                 method: 'DELETE',
             });
             await fetchWishlist(); // Re-fetch wishlist to update state
+            toast.success('Removed from wishlist!');
         } catch (error: any) {
             console.error('Error removing from wishlist:', error);
             toast.error(`Failed to remove from wishlist: ${error.message}`);

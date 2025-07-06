@@ -3,7 +3,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { fetchWithAuth, BASE_API_URL } from '../../../lib/api'; // Correct path from app/products/page.tsx
+// import { fetchWithAuth, BASE_API_URL } from '../../../lib/api'; 
+import { fetchPublic, BASE_API_URL } from '@/lib/publicApi';
 import ProductCard from '../../../components/ui/ProductCard'; // Correct path to ProductCard
 import toast from 'react-hot-toast';
 import { Search, Filter, Grid, List, Star, Heart, ShoppingCart, Eye, Zap, Award, TrendingUp, Package } from 'lucide-react';
@@ -44,7 +45,7 @@ const ProductListingPage = () => {
         const fetchProductsData = async () => {
             setLoading(true);
             try {
-                const data: Product[] = await fetchWithAuth(`${BASE_API_URL}/products`);
+                const data: Product[] = await fetchPublic(`${BASE_API_URL}/products`);
                 setProducts(data);
                 setFilteredProducts(data); // Initialize filtered products with all products
             } catch (error: any) {

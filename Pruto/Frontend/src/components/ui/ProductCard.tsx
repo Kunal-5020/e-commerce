@@ -52,10 +52,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         e.stopPropagation(); // Prevent navigating to product detail page when clicking wishlist icon
         if (isLiked) {
             await removeFromWishlist(product._id);
-            toast.success('Removed from wishlist!');
+            // toast.success('Removed from wishlist!');
         } else {
             await addToWishlist(product._id);
-            toast.success('Added to wishlist!');
+            // toast.success('Added to wishlist!');
         }
         // The useEffect above will automatically update isLiked based on the new wishlistItems state
     };

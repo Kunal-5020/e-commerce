@@ -16,7 +16,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -44,7 +43,7 @@ app.get("/", (req, res) => res.send("Pruto Backend Server is running"));
 // Error handling middleware (optional, but good practice)
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).send('Something broke!',err);
 });
 
 // MongoDB Connection
