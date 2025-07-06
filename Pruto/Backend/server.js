@@ -10,12 +10,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-const corsOptions = {
-  origin: ['http://localhost:3000','https://pruto.vercel.app'], // add your frontend domain here
-  credentials: true, // allow cookies if needed
-};
+// const corsOptions = {
+//   origin: ['http://localhost:3000','https://pruto.vercel.app'], // add your frontend domain here
+//   credentials: true, // allow cookies if needed
+// };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
