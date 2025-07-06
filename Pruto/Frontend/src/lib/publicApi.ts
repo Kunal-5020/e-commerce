@@ -11,6 +11,7 @@ export const fetchPublic = async (url: string, options: FetchOptions = {}): Prom
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
         ...options.headers,
+        credentials: 'include',
     };
 
     const response = await fetch(url, { ...options, headers });

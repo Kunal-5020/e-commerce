@@ -21,6 +21,7 @@ export const fetchWithAuth = async (url: string, options: FetchOptions = {}): Pr
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
         ...options.headers,
+        credentials: 'include',
     };
 
     // No Authorization header needed as backend trusts raw data
