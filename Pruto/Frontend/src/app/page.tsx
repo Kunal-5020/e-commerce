@@ -107,13 +107,13 @@ const HomePage: React.FC = () => {
                         </p>
                         
                         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            <button className="group bg-white text-gray-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-white/25 hover:scale-105">
+                            <button className="group bg-white text-gray-900 px-8 py-4 rounded-full text-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-2xl hover:shadow-white/25 hover:scale-105"  onClick={() => router.push('/products')}>
                                 <span className="flex items-center">
                                     Shop Now
                                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                                 </span>
                             </button>
-                            <button className="group border-2 border-white text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-gray-900 transition-all duration-300">
+                            <button className="group border-2 border-white text-white px-8 py-4 rounded-full text-lg font-bold hover:bg-white hover:text-gray-900 transition-all duration-300"  onClick={() => router.push('/products')}>
                                 <span className="flex items-center">
                                     <Sparkles className="w-5 h-5 mr-2" />
                                     Explore Collections
@@ -174,7 +174,7 @@ const HomePage: React.FC = () => {
                     ))}
                 </div>
                  <div className="text-center mt-16">
-                    <button className="group bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105">
+                    <button className="group bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-bold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"  onClick={() => router.push('/products')}>
                         <span className="flex items-center">
                             View All Products
                             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
