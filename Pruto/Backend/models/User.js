@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema({
     ],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
-    role: { type: String, enum: ['user', 'admin'], default: 'admin' }, 
+    role: { type: String, enum: ['user', 'admin'], default: 'admin' },
+    createdAt: { type: Date, default: Date.now } ,
     updatedAt: { type: Date, default: Date.now }
 });
 
