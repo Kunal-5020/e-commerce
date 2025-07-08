@@ -39,6 +39,11 @@ app.use('/api/admin', adminRoutes);
 // app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => res.send("Pruto Backend Server is running"));
+app.get("/healthz", (req, res) => {
+  // You can add more robust checks here, like checking database connection
+  // For now, a simple 200 OK is fine
+  res.status(200).send("OK");
+});
 
 // Error handling middleware (optional, but good practice)
 app.use((err, req, res, next) => {
